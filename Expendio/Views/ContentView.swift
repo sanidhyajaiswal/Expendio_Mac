@@ -199,14 +199,19 @@ struct ContentView: View {
     private var profileBottomCard: some View {
         let profile = activeProfile
         let color = Color(hex: profile?.colorHex ?? "#7C3AED")
-        return HStack(spacing: 12) {
-            // Avatar + name (non-interactive, just display)
-            ZStack {
-                Circle().fill(color.opacity(0.2)).frame(width: 34, height: 34)
-                Text(String((profile?.name ?? "P").prefix(1)).uppercased())
-                    .font(.system(size: 14, weight: .bold))
-                    .foregroundColor(color)
+        return HStack(spacing: 10) {
+            // Avatar — click to cycle to next profile
+            Button { cycleProfile() } label: {
+                ZStack {
+                    Circle().fill(color.opacity(0.2)).frame(width: 34, height: 34)
+                    Text(String((profile?.name ?? "P").prefix(1)).uppercased())
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(color)
+                }
             }
+            .buttonStyle(.plain)
+            .help(profiles.count > 1 ? "Click to switch profile" : "")
+
             VStack(alignment: .leading, spacing: 2) {
                 Text(profile?.name ?? "Profile")
                     .font(.system(size: 13, weight: .semibold))
@@ -216,13 +221,13 @@ struct ContentView: View {
                     .font(.system(size: 10))
                     .foregroundColor(AppTheme.textMuted)
             }
-            Spacer()
-            // Gear button opens custom panel to the right
+            Spacer(minLength: 0)
+            // Gear button
             Button { showProfilePanel = true } label: {
                 Image(systemName: "gearshape.fill")
-                    .font(.system(size: 13))
+                    .font(.system(size: 12))
                     .foregroundColor(AppTheme.textMuted)
-                    .frame(width: 28, height: 28)
+                    .frame(width: 26, height: 26)
                     .background(RoundedRectangle(cornerRadius: 7).fill(AppTheme.surfaceElevated.opacity(0.6)))
             }
             .buttonStyle(.plain)
@@ -230,8 +235,7 @@ struct ContentView: View {
                 profilePanel
             }
         }
-        .padding(.horizontal, 16).padding(.vertical, 14)
-        // Edit Profile sheet
+        .padding(.horizontal, 16).padding(.vertical, 12)
         .sheet(isPresented: $showEditProfileSheet) {
             ProfileDialogSheet(
                 title: "Edit Profile",
@@ -250,7 +254,6 @@ struct ContentView: View {
                 onCancel: { showEditProfileSheet = false }
             )
         }
-        // Add Profile sheet
         .sheet(isPresented: $showAddProfileSheet) {
             ProfileDialogSheet(
                 title: "Add Profile",
@@ -275,87 +278,36 @@ struct ContentView: View {
         }
     }
 
-    // MARK: - Profile Panel (opens to the right of sidebar)
+    private func cycleProfile() {
+        guard profiles.count > 1, let current = activeProfile,
+              let idx = profiles.firstIndex(where: { $0.id == current.id }) else { return }
+        let next = profiles[(idx + 1) % profiles.count]
+        withAnimation { activeProfileIdString = next.id.uuidString }
+    }
+
+    // MARK: - Compact Profile Panel
     private var profilePanel: some View {
-        VStack(alignment: .leading, spacing: 0) {
-            // Title
-            Text("Profiles")
-                .font(.system(size: 15, weight: .bold, design: .rounded))
-                .foregroundColor(AppTheme.textPrimary)
-                .padding(.horizontal, 18).padding(.top, 18).padding(.bottom, 12)
+        VStack(alignment: .leading, spacing: 2) {
+            Text("Profile")
+                .font(.system(size: 12, weight: .bold, design: .rounded))
+                .foregroundColor(AppTheme.textMuted)
+                .padding(.horizontal, 16).padding(.top, 14).padding(.bottom, 6)
 
-            Divider().overlay(AppTheme.border.opacity(0.4))
-
-            VStack(alignment: .leading, spacing: 4) {
-                // Profile switcher list
-                Text("SWITCH TO")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(AppTheme.textMuted)
-                    .padding(.horizontal, 18).padding(.top, 14).padding(.bottom, 6)
-
-                ForEach(profiles, id: \.id) { p in
-                    Button {
-                        activeProfileIdString = p.id.uuidString
-                        selectedItem = .dashboard
-                        showProfilePanel = false
-                    } label: {
-                        HStack(spacing: 10) {
-                            ZStack {
-                                Circle().fill(Color(hex: p.colorHex).opacity(0.2)).frame(width: 28, height: 28)
-                                Text(String(p.name.prefix(1)).uppercased())
-                                    .font(.system(size: 11, weight: .bold))
-                                    .foregroundColor(Color(hex: p.colorHex))
-                            }
-                            Text(p.name)
-                                .font(.system(size: 13, weight: .medium))
-                                .foregroundColor(AppTheme.textPrimary)
-                            Spacer()
-                            if p.id == activeProfile?.id {
-                                Image(systemName: "checkmark")
-                                    .font(.system(size: 11, weight: .bold))
-                                    .foregroundColor(AppTheme.accent)
-                            }
-                        }
-                        .padding(.horizontal, 12).padding(.vertical, 7)
-                        .background(
-                            RoundedRectangle(cornerRadius: 8)
-                                .fill(p.id == activeProfile?.id ? AppTheme.accent.opacity(0.12) : Color.clear)
-                        )
-                    }
-                    .buttonStyle(.plain)
-                    .padding(.horizontal, 6)
-                }
-
-                Divider().overlay(AppTheme.border.opacity(0.3)).padding(.vertical, 10)
-
-                // Actions
-                Text("MANAGE")
-                    .font(.system(size: 10, weight: .semibold))
-                    .foregroundColor(AppTheme.textMuted)
-                    .padding(.horizontal, 18).padding(.bottom, 6)
-
-                panelActionButton(icon: "pencil", label: "Edit Profile") {
-                    editingProfileName = activeProfile?.name ?? ""
-                    editingProfileColor = activeProfile?.colorHex ?? "#7C3AED"
-                    showProfilePanel = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        showEditProfileSheet = true
-                    }
-                }
-                panelActionButton(icon: "person.badge.plus", label: "Add Profile") {
-                    newProfileName = ""
-                    newProfileColor = "#7C3AED"
-                    showProfilePanel = false
-                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-                        showAddProfileSheet = true
-                    }
-                }
-
-                Spacer(minLength: 14)
+            panelActionButton(icon: "pencil", label: "Edit Profile") {
+                editingProfileName = activeProfile?.name ?? ""
+                editingProfileColor = activeProfile?.colorHex ?? "#7C3AED"
+                showProfilePanel = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { showEditProfileSheet = true }
+            }
+            panelActionButton(icon: "person.badge.plus", label: "Add Profile") {
+                newProfileName = ""
+                newProfileColor = "#7C3AED"
+                showProfilePanel = false
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { showAddProfileSheet = true }
             }
         }
-        .frame(width: 240)
-        .frame(minHeight: 280)
+        .padding(.vertical, 8)
+        .frame(width: 200)
         .background(AppTheme.background)
     }
 
@@ -365,18 +317,17 @@ struct ContentView: View {
                 Image(systemName: icon)
                     .font(.system(size: 13))
                     .foregroundColor(AppTheme.textSecondary)
-                    .frame(width: 20)
+                    .frame(width: 18)
                 Text(label)
                     .font(.system(size: 13, weight: .medium))
                     .foregroundColor(AppTheme.textPrimary)
                 Spacer()
             }
             .padding(.horizontal, 12).padding(.vertical, 8)
-            .background(RoundedRectangle(cornerRadius: 8).fill(Color.clear))
             .contentShape(Rectangle())
         }
         .buttonStyle(.plain)
-        .padding(.horizontal, 6)
+        .padding(.horizontal, 4)
     }
     
     private func sidebarButton(_ item: SidebarItem) -> some View {
