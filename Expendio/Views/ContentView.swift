@@ -144,42 +144,64 @@ struct ContentView: View {
     
     // MARK: - Main Layout
     private func mainLayout(profileId: UUID) -> some View {
-        HStack(spacing: 0) {
-            sidebar(profileId: profileId)
-            Rectangle().fill(AppTheme.border.opacity(0.3)).frame(width: 1)
-            mainContent(profileId: profileId)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(AppTheme.background)
+        ZStack(alignment: .bottomLeading) {
+            HStack(spacing: 0) {
+                sidebar(profileId: profileId)
+                Rectangle().fill(AppTheme.border.opacity(0.3)).frame(width: 1)
+                mainContent(profileId: profileId)
+                    .frame(maxWidth: .infinity, maxHeight: .infinity)
+                    .background(AppTheme.background)
+            }
+
+            // Gear panel overlay (inside main content, bottom-left)
+            if showGearPanel {
+                profilePanel
+                    .fixedSize()
+                    .offset(x: 221, y: 0)
+                    .transition(.opacity.combined(with: .scale(scale: 0.95, anchor: .bottomLeading)))
+            }
         }
     }
     
     // MARK: - Sidebar
     private func sidebar(profileId: UUID) -> some View {
-        VStack(spacing: 0) {
-            // Logo
-            HStack(spacing: 10) {
-                Image(systemName: "indianrupeesign.circle.fill")
-                    .font(.system(size: 26, weight: .bold))
-                    .foregroundColor(AppTheme.accent)
-                Text("Expendio")
-                    .font(.system(size: 20, weight: .bold, design: .rounded))
-                    .foregroundColor(AppTheme.textPrimary)
-            }
-            .padding(.horizontal, 20).padding(.top, 20).padding(.bottom, 20)
-
-            // Menu Items
-            VStack(spacing: 4) {
-                ForEach(SidebarItem.allCases) { item in
-                    sidebarButton(item)
+        ZStack(alignment: .bottom) {
+            VStack(spacing: 0) {
+                // Logo
+                HStack(spacing: 10) {
+                    Image(systemName: "indianrupeesign.circle.fill")
+                        .font(.system(size: 26, weight: .bold))
+                        .foregroundColor(AppTheme.accent)
+                    Text("Expendio")
+                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .foregroundColor(AppTheme.textPrimary)
                 }
+                .padding(.horizontal, 20).padding(.top, 20).padding(.bottom, 20)
+
+                // Menu Items
+                VStack(spacing: 4) {
+                    ForEach(SidebarItem.allCases) { item in
+                        sidebarButton(item)
+                    }
+                }
+                .padding(.horizontal, 12)
+
+                Spacer()
+
+                // Profile card at bottom
+                Divider().overlay(AppTheme.border.opacity(0.3))
+                profileBottomCard
             }
-            .padding(.horizontal, 12)
 
-            Spacer()
-
-            // Profile card at bottom
-            Divider().overlay(AppTheme.border.opacity(0.3))
-            profileBottomCard
+            // Profile switcher overlay (appears above profile card)
+            if showProfileSwitcher {
+                VStack(spacing: 0) {
+                    Spacer()
+                    profileSwitcherOverlay
+                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                }
+                .padding(.bottom, 60) // offset above the profile card
+            }
         }
         .frame(width: 220)
         .background(AppTheme.surface.opacity(0.5))
@@ -194,14 +216,17 @@ struct ContentView: View {
     @State private var newProfileColor = "#7C3AED"
     private let profileColors = ["#7C3AED","#FF6B6B","#4ECDC4","#F59E0B","#3B82F6","#EC4899","#10B981","#F97316"]
 
-    @State private var showProfilePanel = false
+    @State private var showProfileSwitcher = false
+    @State private var showGearPanel = false
 
     private var profileBottomCard: some View {
         let profile = activeProfile
         let color = Color(hex: profile?.colorHex ?? "#7C3AED")
         return HStack(spacing: 10) {
-            // Avatar — click to cycle to next profile
-            Button { cycleProfile() } label: {
+            // Avatar — click to show custom profile switcher popover (above)
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) { showProfileSwitcher.toggle() }
+            } label: {
                 ZStack {
                     Circle().fill(color.opacity(0.2)).frame(width: 34, height: 34)
                     Text(String((profile?.name ?? "P").prefix(1)).uppercased())
@@ -210,7 +235,6 @@ struct ContentView: View {
                 }
             }
             .buttonStyle(.plain)
-            .help(profiles.count > 1 ? "Click to switch profile" : "")
 
             VStack(alignment: .leading, spacing: 2) {
                 Text(profile?.name ?? "Profile")
@@ -223,7 +247,9 @@ struct ContentView: View {
             }
             Spacer(minLength: 0)
             // Gear button
-            Button { showProfilePanel = true } label: {
+            Button {
+                withAnimation(.easeInOut(duration: 0.15)) { showGearPanel.toggle() }
+            } label: {
                 Image(systemName: "gearshape.fill")
                     .font(.system(size: 12))
                     .foregroundColor(AppTheme.textMuted)
@@ -231,9 +257,6 @@ struct ContentView: View {
                     .background(RoundedRectangle(cornerRadius: 7).fill(AppTheme.surfaceElevated.opacity(0.6)))
             }
             .buttonStyle(.plain)
-            .popover(isPresented: $showProfilePanel, arrowEdge: .trailing) {
-                profilePanel
-            }
         }
         .padding(.horizontal, 16).padding(.vertical, 12)
         .sheet(isPresented: $showEditProfileSheet) {
@@ -278,37 +301,75 @@ struct ContentView: View {
         }
     }
 
-    private func cycleProfile() {
-        guard profiles.count > 1, let current = activeProfile,
-              let idx = profiles.firstIndex(where: { $0.id == current.id }) else { return }
-        let next = profiles[(idx + 1) % profiles.count]
-        withAnimation { activeProfileIdString = next.id.uuidString }
+    // MARK: - Profile Switcher Overlay (inside sidebar, above profile card)
+    private var profileSwitcherOverlay: some View {
+        VStack(alignment: .leading, spacing: 2) {
+            ForEach(profiles, id: \.id) { p in
+                Button {
+                    withAnimation(.easeInOut(duration: 0.15)) {
+                        activeProfileIdString = p.id.uuidString
+                        showProfileSwitcher = false
+                    }
+                } label: {
+                    HStack(spacing: 10) {
+                        ZStack {
+                            Circle().fill(Color(hex: p.colorHex).opacity(0.2)).frame(width: 26, height: 26)
+                            Text(String(p.name.prefix(1)).uppercased())
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(Color(hex: p.colorHex))
+                        }
+                        Text(p.name)
+                            .font(.system(size: 13, weight: .medium))
+                            .foregroundColor(AppTheme.textPrimary)
+                        Spacer()
+                        if p.id == activeProfile?.id {
+                            Image(systemName: "checkmark")
+                                .font(.system(size: 10, weight: .bold))
+                                .foregroundColor(AppTheme.accent)
+                        }
+                    }
+                    .padding(.horizontal, 12).padding(.vertical, 8)
+                    .background(
+                        RoundedRectangle(cornerRadius: 8)
+                            .fill(p.id == activeProfile?.id ? AppTheme.accent.opacity(0.1) : Color.clear)
+                    )
+                    .contentShape(Rectangle())
+                }
+                .buttonStyle(.plain)
+            }
+        }
+        .padding(.vertical, 6).padding(.horizontal, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(AppTheme.background)
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(AppTheme.border.opacity(0.5), lineWidth: 1))
+                .shadow(color: .black.opacity(0.4), radius: 8, y: -2)
+        )
     }
 
-    // MARK: - Compact Profile Panel
+    // MARK: - Compact Gear Panel (in-app overlay)
     private var profilePanel: some View {
         VStack(alignment: .leading, spacing: 2) {
-            Text("Profile")
-                .font(.system(size: 12, weight: .bold, design: .rounded))
-                .foregroundColor(AppTheme.textMuted)
-                .padding(.horizontal, 16).padding(.top, 14).padding(.bottom, 6)
-
             panelActionButton(icon: "pencil", label: "Edit Profile") {
                 editingProfileName = activeProfile?.name ?? ""
                 editingProfileColor = activeProfile?.colorHex ?? "#7C3AED"
-                showProfilePanel = false
+                withAnimation { showGearPanel = false }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { showEditProfileSheet = true }
             }
             panelActionButton(icon: "person.badge.plus", label: "Add Profile") {
                 newProfileName = ""
                 newProfileColor = "#7C3AED"
-                showProfilePanel = false
+                withAnimation { showGearPanel = false }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { showAddProfileSheet = true }
             }
         }
-        .padding(.vertical, 8)
-        .frame(width: 200)
-        .background(AppTheme.background)
+        .padding(.vertical, 6).padding(.horizontal, 4)
+        .background(
+            RoundedRectangle(cornerRadius: 8)
+                .fill(AppTheme.background)
+                .overlay(RoundedRectangle(cornerRadius: 8).stroke(AppTheme.border.opacity(0.5), lineWidth: 1))
+                .shadow(color: .black.opacity(0.4), radius: 8, x: 2, y: -2)
+        )
     }
 
     private func panelActionButton(icon: String, label: String, action: @escaping () -> Void) -> some View {
