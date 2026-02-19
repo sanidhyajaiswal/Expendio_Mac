@@ -218,6 +218,7 @@ struct ContentView: View {
 
     @State private var showProfileSwitcher = false
     @State private var showGearPanel = false
+    @State private var showDeleteProfileAlert = false
 
     private var profileBottomCard: some View {
         let profile = activeProfile
@@ -299,6 +300,12 @@ struct ContentView: View {
                 onCancel: { showAddProfileSheet = false }
             )
         }
+        .alert("Delete \"\(activeProfile?.name ?? "Profile")?\" ", isPresented: $showDeleteProfileAlert) {
+            Button("Delete", role: .destructive) { deleteActiveProfile() }
+            Button("Cancel", role: .cancel) {}
+        } message: {
+            Text("This will permanently delete the profile and all its expenses. This action cannot be undone.")
+        }
     }
 
     // MARK: - Profile Switcher Overlay (inside sidebar, above profile card)
@@ -347,6 +354,24 @@ struct ContentView: View {
         )
     }
 
+    // MARK: - Delete Profile
+    private func deleteActiveProfile() {
+        guard let profile = activeProfile, profiles.count > 1 else { return }
+        // Switch to another profile first
+        let remaining = profiles.filter { $0.id != profile.id }
+        if let next = remaining.first {
+            activeProfileIdString = next.id.uuidString
+        }
+        // Delete all expenses and categories belonging to this profile
+        let pid = profile.id
+        let expensesToDelete = (try? modelContext.fetch(FetchDescriptor<Expense>(predicate: #Predicate { $0.profileId == pid }))) ?? []
+        let categoriesToDelete = (try? modelContext.fetch(FetchDescriptor<ExpenseCategory>(predicate: #Predicate { $0.profileId == pid }))) ?? []
+        expensesToDelete.forEach { modelContext.delete($0) }
+        categoriesToDelete.forEach { modelContext.delete($0) }
+        modelContext.delete(profile)
+        try? modelContext.save()
+    }
+
     // MARK: - Compact Gear Panel (in-app overlay)
     private var profilePanel: some View {
         VStack(alignment: .leading, spacing: 2) {
@@ -362,6 +387,13 @@ struct ContentView: View {
                 withAnimation { showGearPanel = false }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { showAddProfileSheet = true }
             }
+            if profiles.count > 1 {
+                Divider().padding(.horizontal, 8).padding(.vertical, 2)
+                panelActionButton(icon: "trash", label: "Delete Profile", destructive: true) {
+                    withAnimation { showGearPanel = false }
+                    DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { showDeleteProfileAlert = true }
+                }
+            }
         }
         .padding(.vertical, 6).padding(.horizontal, 4)
         .background(
@@ -372,16 +404,17 @@ struct ContentView: View {
         )
     }
 
-    private func panelActionButton(icon: String, label: String, action: @escaping () -> Void) -> some View {
-        Button { action() } label: {
+    private func panelActionButton(icon: String, label: String, destructive: Bool = false, action: @escaping () -> Void) -> some View {
+        let tint = destructive ? AppTheme.danger : AppTheme.textSecondary
+        return Button { action() } label: {
             HStack(spacing: 10) {
                 Image(systemName: icon)
                     .font(.system(size: 13))
-                    .foregroundColor(AppTheme.textSecondary)
+                    .foregroundColor(tint)
                     .frame(width: 18)
                 Text(label)
                     .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(AppTheme.textPrimary)
+                    .foregroundColor(destructive ? AppTheme.danger : AppTheme.textPrimary)
                 Spacer()
             }
             .padding(.horizontal, 12).padding(.vertical, 8)
