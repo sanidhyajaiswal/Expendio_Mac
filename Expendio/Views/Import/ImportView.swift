@@ -6,6 +6,7 @@ struct ImportView: View {
     let profileId: UUID
     @Environment(\.modelContext) private var modelContext
     @Query private var categories: [ExpenseCategory]
+    @Query private var profiles: [Profile]
     
     @State private var isDragOver = false
     @State private var parsedExpenses: [ParsedExpense] = []
@@ -97,6 +98,9 @@ struct ImportView: View {
         guard let provider = providers.first else { return }
         provider.loadItem(forTypeIdentifier: UTType.fileURL.identifier, options: nil) { data, _ in guard let d = data as? Data, let url = URL(dataRepresentation: d, relativeTo: nil) else { return }; DispatchQueue.main.async { loadCSV(from: url) } }
     }
-    private func loadCSV(from url: URL) { do { parsedExpenses = try SplitwiseImporter.parseCSV(at: url); importStatus = .previewing; errorMessage = nil } catch { errorMessage = error.localizedDescription; importStatus = .error } }
+    private var activeProfileName: String {
+        profiles.first { $0.id == profileId }?.name ?? ""
+    }
+    private func loadCSV(from url: URL) { do { parsedExpenses = try SplitwiseImporter.parseCSV(at: url, profileName: activeProfileName); importStatus = .previewing; errorMessage = nil } catch { errorMessage = error.localizedDescription; importStatus = .error } }
     private func performImport() { importStatus = .importing; importedCount = SplitwiseImporter.importExpenses(parsedExpenses, into: modelContext, categories: categories, profileId: profileId); importStatus = .done }
 }

@@ -28,7 +28,7 @@ class SplitwiseImporter {
     }
     
     // MARK: - Parse CSV
-    static func parseCSV(at url: URL) throws -> [ParsedExpense] {
+    static func parseCSV(at url: URL, profileName: String = "") throws -> [ParsedExpense] {
         let content: String
         do {
             content = try String(contentsOf: url, encoding: .utf8)
@@ -41,8 +41,9 @@ class SplitwiseImporter {
         
         guard lines.count > 1 else { throw ImportError.noData }
         
-        // Parse header
-        let header = parseCSVLine(lines[0]).map { $0.lowercased().trimmingCharacters(in: .whitespaces) }
+        // Parse header (keep original casing for person matching)
+        let rawHeader = parseCSVLine(lines[0]).map { $0.trimmingCharacters(in: .whitespaces) }
+        let header = rawHeader.map { $0.lowercased() }
         
         guard let dateIndex = header.firstIndex(of: "date"),
               let descIndex = header.firstIndex(of: "description"),
@@ -52,6 +53,9 @@ class SplitwiseImporter {
         
         let categoryIndex = header.firstIndex(of: "category")
         let currencyIndex = header.firstIndex(of: "currency")
+        
+        // Find the person column matching (or closest to) the profile name
+        let personIndex = findPersonColumn(header: rawHeader, profileName: profileName)
         
         // Parse data rows
         var expenses: [ParsedExpense] = []
@@ -86,8 +90,14 @@ class SplitwiseImporter {
             }
             guard let date = parsedDate else { continue }
             
-            // Parse cost
-            let cleanCost = costString.replacingOccurrences(of: ",", with: "")
+            // Parse cost — prefer person column if available, fall back to total cost
+            let amountString: String
+            if let pIdx = personIndex, fields.count > pIdx {
+                amountString = fields[pIdx].trimmingCharacters(in: .whitespaces)
+            } else {
+                amountString = costString
+            }
+            let cleanCost = amountString.replacingOccurrences(of: ",", with: "")
             guard let cost = Double(cleanCost), cost > 0 else { continue }
             
             // Category
@@ -189,6 +199,50 @@ class SplitwiseImporter {
         fields.append(current)
         
         return fields
+    }
+    
+    // MARK: - Find Person Column
+    /// Finds the CSV column index matching (or closest to) the profile name.
+    /// Splitwise CSVs have standard columns (Date, Description, Category, Cost, Currency)
+    /// followed by one column per participant showing their individual share.
+    private static func findPersonColumn(header: [String], profileName: String) -> Int? {
+        guard !profileName.isEmpty else { return nil }
+        
+        let standardColumns: Set<String> = [
+            "date", "description", "category", "cost", "currency"
+        ]
+        
+        // Candidate columns = everything that isn't a standard column
+        let candidates: [(index: Int, name: String)] = header.enumerated().compactMap { idx, col in
+            standardColumns.contains(col.lowercased()) ? nil : (idx, col)
+        }
+        
+        guard !candidates.isEmpty else { return nil }
+        
+        let profileLower = profileName.lowercased()
+        
+        // 1. Exact case-insensitive match
+        if let exact = candidates.first(where: { $0.name.lowercased() == profileLower }) {
+            return exact.index
+        }
+        
+        // 2. Contains match (profile name in column or column in profile name)
+        if let contains = candidates.first(where: {
+            $0.name.lowercased().contains(profileLower) || profileLower.contains($0.name.lowercased())
+        }) {
+            return contains.index
+        }
+        
+        // 3. First-name match: compare first word of both
+        let profileFirst = profileLower.split(separator: " ").first.map(String.init) ?? profileLower
+        if let firstNameMatch = candidates.first(where: {
+            let colFirst = $0.name.lowercased().split(separator: " ").first.map(String.init) ?? $0.name.lowercased()
+            return colFirst == profileFirst
+        }) {
+            return firstNameMatch.index
+        }
+        
+        return nil
     }
     
     // MARK: - Category Mapping
