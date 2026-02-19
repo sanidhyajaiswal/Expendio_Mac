@@ -48,7 +48,7 @@ struct DashboardView: View {
             VStack(alignment: .leading, spacing: 24) {
                 headerSection
                 statsGrid
-                HStack(alignment: .top, spacing: 20) { spendingTrendChart; categoryBreakdown }
+                HStack(alignment: .top, spacing: 20) { spendingTrendChart; categoryBreakdown }.fixedSize(horizontal: false, vertical: true)
                 recentExpensesSection
             }
             .padding(32)

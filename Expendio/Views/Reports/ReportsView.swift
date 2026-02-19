@@ -43,7 +43,7 @@ struct ReportsView: View {
             ScrollView {
                 VStack(spacing: 20) {
                     periodNavigator; summaryCard
-                    HStack(alignment: .top, spacing: 20) { mainChart; categoryPieChart }
+                    HStack(alignment: .top, spacing: 20) { mainChart; categoryPieChart }.fixedSize(horizontal: false, vertical: true)
                     categoryTable
                 }.padding(32)
             }
@@ -87,7 +87,7 @@ struct ReportsView: View {
                 }
                 .chartXAxis { AxisMarks { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.3)); AxisValueLabel().foregroundStyle(AppTheme.textSecondary) } }
                 .chartYAxis { AxisMarks { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.2)); AxisValueLabel().foregroundStyle(AppTheme.textSecondary) } }
-                .frame(height: 260)
+                .frame(minHeight: 220, maxHeight: .infinity)
             }
         }.glassCard().frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -97,7 +97,8 @@ struct ReportsView: View {
             Text("By Category").font(.system(size: 16, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
             let cd = catData()
             if cd.isEmpty { empty } else {
-                Chart(cd, id: \.name) { item in SectorMark(angle: .value("Amount", item.amount), innerRadius: .ratio(0.55), angularInset: 2).foregroundStyle(item.color).cornerRadius(4) }.frame(height: 200)
+                Chart(cd, id: \.name) { item in SectorMark(angle: .value("Amount", item.amount), innerRadius: .ratio(0.55), angularInset: 2).foregroundStyle(item.color).cornerRadius(4) }.frame(minHeight: 180)
+                Spacer(minLength: 0)
                 VStack(spacing: 6) { ForEach(Array(cd.prefix(6).enumerated()), id: \.element.name) { _, item in HStack(spacing: 8) { Circle().fill(item.color).frame(width: 8, height: 8); Text(item.name).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary).lineLimit(1); Spacer(); Text(fmt(item.amount)).font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textPrimary) } } }
             }
         }.glassCard().frame(width: 280).frame(maxHeight: .infinity)
