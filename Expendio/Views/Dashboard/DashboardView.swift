@@ -68,24 +68,27 @@ struct DashboardView: View {
             VStack(alignment: .leading, spacing: 10) {
                 HStack { Image(systemName: "indianrupeesign.circle.fill").foregroundColor(AppTheme.accent); Text("This Month").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium))
                 Text(fmt(totalThisMonth)).font(.system(size: 32, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
-            }.statCard(accent: AppTheme.accent)
+            }.statCard(accent: AppTheme.accent).frame(maxHeight: .infinity)
             
             VStack(alignment: .leading, spacing: 10) {
                 HStack { Image(systemName: "chart.line.uptrend.xyaxis").foregroundColor(AppTheme.accentSecondary); Text("Daily Average").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium))
                 Text(fmt(dailyAverage)).font(.system(size: 32, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
-            }.statCard(accent: AppTheme.accentSecondary)
+            }.statCard(accent: AppTheme.accentSecondary).frame(maxHeight: .infinity)
             
             VStack(alignment: .leading, spacing: 10) {
                 HStack { Image(systemName: "flame.fill").foregroundColor(AppTheme.warning); Text("Top Category").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium))
-                Text(topCategory?.0 ?? "—").font(.system(size: 20, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
-                if let top = topCategory { Text(fmt(top.1)).font(.system(size: 14)).foregroundColor(AppTheme.textSecondary) }
-            }.statCard(accent: AppTheme.warning)
+                HStack(alignment: .firstTextBaseline) {
+                    Text(topCategory?.0 ?? "—").font(.system(size: 32, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary).lineLimit(1).minimumScaleFactor(0.5)
+                    Spacer()
+                    if let top = topCategory { Text(fmt(top.1)).font(.system(size: 14, weight: .semibold)).foregroundColor(AppTheme.textSecondary) }
+                }
+            }.statCard(accent: AppTheme.warning).frame(maxHeight: .infinity)
             
             VStack(alignment: .leading, spacing: 10) {
                 HStack { Image(systemName: "number.circle.fill").foregroundColor(AppTheme.success); Text("Transactions").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium))
                 Text("\(currentMonthExpenses.count)").font(.system(size: 32, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
-            }.statCard(accent: AppTheme.success)
-        }
+            }.statCard(accent: AppTheme.success).frame(maxHeight: .infinity)
+        }.fixedSize(horizontal: false, vertical: true)
     }
     
     private var spendingTrendChart: some View {
@@ -100,9 +103,8 @@ struct DashboardView: View {
                 }
                 .chartXAxis { AxisMarks(values: .stride(by: .day, count: 7)) { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.3)); AxisValueLabel(format: .dateTime.day().month(.abbreviated)).foregroundStyle(AppTheme.textSecondary) } }
                 .chartYAxis { AxisMarks { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.3)); AxisValueLabel().foregroundStyle(AppTheme.textSecondary) } }
-                .frame(height: 220)
             } else { emptyChart }
-        }.glassCard().frame(maxWidth: .infinity)
+        }.glassCard().frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private var categoryBreakdown: some View {
@@ -126,7 +128,7 @@ struct DashboardView: View {
                     }
                 }
             } else { emptyChart }
-        }.glassCard().frame(width: 300)
+        }.glassCard().frame(width: 300).frame(maxHeight: .infinity)
     }
     
     private var recentExpensesSection: some View {

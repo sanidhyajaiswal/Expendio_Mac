@@ -64,10 +64,10 @@ struct ReportsView: View {
     private var summaryCard: some View {
         let f = filtered; let total = f.reduce(0) { $0 + $1.amount }; let count = f.count; let avg = count > 0 ? total / Double(count) : 0
         return HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "indianrupeesign.circle.fill").foregroundColor(AppTheme.accent); Text("Total Spending").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text(fmt(total)).font(.system(size: 36, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.accent)
-            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "number.circle.fill").foregroundColor(AppTheme.accentSecondary); Text("Transactions").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text("\(count)").font(.system(size: 36, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.accentSecondary)
-            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "divide.circle.fill").foregroundColor(AppTheme.warning); Text("Avg / Transaction").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text(fmt(avg)).font(.system(size: 36, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.warning)
-        }
+            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "indianrupeesign.circle.fill").foregroundColor(AppTheme.accent); Text("Total Spending").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text(fmt(total)).font(.system(size: 36, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.accent).frame(maxHeight: .infinity)
+            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "number.circle.fill").foregroundColor(AppTheme.accentSecondary); Text("Transactions").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text("\(count)").font(.system(size: 36, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.accentSecondary).frame(maxHeight: .infinity)
+            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "divide.circle.fill").foregroundColor(AppTheme.warning); Text("Avg / Transaction").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text(fmt(avg)).font(.system(size: 36, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.warning).frame(maxHeight: .infinity)
+        }.fixedSize(horizontal: false, vertical: true)
     }
     
     // MARK: - Charts
@@ -89,7 +89,7 @@ struct ReportsView: View {
                 .chartYAxis { AxisMarks { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.2)); AxisValueLabel().foregroundStyle(AppTheme.textSecondary) } }
                 .frame(height: 260)
             }
-        }.glassCard().frame(maxWidth: .infinity)
+        }.glassCard().frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     private var categoryPieChart: some View {
@@ -100,7 +100,7 @@ struct ReportsView: View {
                 Chart(cd, id: \.name) { item in SectorMark(angle: .value("Amount", item.amount), innerRadius: .ratio(0.55), angularInset: 2).foregroundStyle(item.color).cornerRadius(4) }.frame(height: 200)
                 VStack(spacing: 6) { ForEach(Array(cd.prefix(6).enumerated()), id: \.element.name) { _, item in HStack(spacing: 8) { Circle().fill(item.color).frame(width: 8, height: 8); Text(item.name).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary).lineLimit(1); Spacer(); Text(fmt(item.amount)).font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textPrimary) } } }
             }
-        }.glassCard().frame(width: 280)
+        }.glassCard().frame(width: 280).frame(maxHeight: .infinity)
     }
     
     // MARK: - Category Table

@@ -394,6 +394,7 @@ struct ContentView: View {
     private func sidebarButton(_ item: SidebarItem) -> some View {
         Button {
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { selectedItem = item }
+            contentRefreshId = UUID()
         } label: {
             HStack(spacing: 12) {
                 Image(systemName: item.icon).font(.system(size: 15, weight: .medium)).frame(width: 24)
@@ -413,14 +414,15 @@ struct ContentView: View {
     }
     
     // MARK: - Main Content
+    @State private var contentRefreshId = UUID()
     @ViewBuilder
     private func mainContent(profileId: UUID) -> some View {
         switch selectedItem {
-        case .dashboard: DashboardView(profileId: profileId)
-        case .expenses: ExpenseListView(profileId: profileId)
-        case .reports: ReportsView(profileId: profileId)
-        case .categories: CategoryManagementView(profileId: profileId)
-        case .importCSV: ImportView(profileId: profileId)
+        case .dashboard: DashboardView(profileId: profileId).id(contentRefreshId)
+        case .expenses: ExpenseListView(profileId: profileId).id(contentRefreshId)
+        case .reports: ReportsView(profileId: profileId).id(contentRefreshId)
+        case .categories: CategoryManagementView(profileId: profileId).id(contentRefreshId)
+        case .importCSV: ImportView(profileId: profileId).id(contentRefreshId)
         }
     }
     

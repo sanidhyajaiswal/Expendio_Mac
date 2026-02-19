@@ -351,8 +351,27 @@ struct ExpenseListView: View {
     }
 
     // MARK: - Actions
-    private func startEditing(_ e: Expense) { editTitle = e.title; editAmount = String(format: "%.2f", e.amount); editDate = e.date; editCategory = e.category; editNotes = e.notes; withAnimation { editingExpenseId = e.id } }
-    private func saveEdit(_ e: Expense) { e.title = editTitle; e.amount = Double(editAmount) ?? e.amount; e.date = editDate; e.category = editCategory; e.notes = editNotes; try? modelContext.save(); withAnimation { editingExpenseId = nil } }
+    private func startEditing(_ e: Expense) {
+        editTitle = e.title
+        editAmount = String(format: "%.2f", e.amount)
+        editDate = e.date
+        editCategory = e.category
+        editNotes = e.notes
+        withAnimation { editingExpenseId = e.id }
+    }
+    private func saveEdit(_ e: Expense) {
+        e.title = editTitle
+        e.amount = Double(editAmount) ?? e.amount
+        e.date = editDate
+        e.category = editCategory
+        e.notes = editNotes
+        do {
+            try modelContext.save()
+        } catch {
+            print("Failed to save expense edit: \(error)")
+        }
+        withAnimation { editingExpenseId = nil }
+    }
     private func deleteExpense(_ e: Expense) { withAnimation { modelContext.delete(e); try? modelContext.save() } }
 
     private func deleteSelected() {
