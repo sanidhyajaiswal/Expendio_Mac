@@ -1,0 +1,444 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		FA0000000000000000000101 /* ExpendioApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000001; };
+		FA0000000000000000000102 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000002; };
+		FA0000000000000000000103 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000003; };
+		FA0000000000000000000104 /* SplitwiseImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000004; };
+		FA0000000000000000000105 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000005; };
+		FA0000000000000000000106 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000006; };
+		FA0000000000000000000107 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007; };
+		FA0000000000000000000108 /* ExpenseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000008; };
+		FA0000000000000000000109 /* AddExpenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009; };
+		FA000000000000000000010A /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000A; };
+		FA000000000000000000010B /* CategoryManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000B; };
+		FA000000000000000000010C /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000C; };
+		FA000000000000000000010D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000D; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		FA0000000000000000000001 /* ExpendioApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpendioApp.swift; sourceTree = "<group>"; };
+		FA0000000000000000000002 /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
+		FA0000000000000000000003 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
+		FA0000000000000000000004 /* SplitwiseImporter.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SplitwiseImporter.swift; sourceTree = "<group>"; };
+		FA0000000000000000000005 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; sourceTree = "<group>"; };
+		FA0000000000000000000006 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; sourceTree = "<group>"; };
+		FA0000000000000000000007 /* DashboardView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DashboardView.swift; sourceTree = "<group>"; };
+		FA0000000000000000000008 /* ExpenseListView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpenseListView.swift; sourceTree = "<group>"; };
+		FA0000000000000000000009 /* AddExpenseView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AddExpenseView.swift; sourceTree = "<group>"; };
+		FA000000000000000000000A /* ReportsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReportsView.swift; sourceTree = "<group>"; };
+		FA000000000000000000000B /* CategoryManagementView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryManagementView.swift; sourceTree = "<group>"; };
+		FA000000000000000000000C /* ImportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ImportView.swift; sourceTree = "<group>"; };
+		FA000000000000000000000D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		FA000000000000000000000E /* Expendio.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Expendio.entitlements; sourceTree = "<group>"; };
+		FA000000000000000000000F /* Expendio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Expendio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		FD0000000000000000000003 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		FC0000000000000000000001 /* Root */ = {
+			isa = PBXGroup;
+			children = (
+				FC0000000000000000000002 /* Expendio */,
+				FC000000000000000000000C /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		FC0000000000000000000002 /* Expendio */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000001 /* ExpendioApp.swift */,
+				FC0000000000000000000003 /* Models */,
+				FC0000000000000000000004 /* Services */,
+				FC0000000000000000000005 /* Theme */,
+				FC0000000000000000000006 /* Views */,
+				FA000000000000000000000D /* Assets.xcassets */,
+				FA000000000000000000000E /* Expendio.entitlements */,
+			);
+			path = Expendio;
+			sourceTree = "<group>";
+		};
+		FC0000000000000000000003 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000002 /* Expense.swift */,
+				FA0000000000000000000003 /* Category.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		FC0000000000000000000004 /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000004 /* SplitwiseImporter.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		FC0000000000000000000005 /* Theme */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000005 /* Theme.swift */,
+			);
+			path = Theme;
+			sourceTree = "<group>";
+		};
+		FC0000000000000000000006 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000006 /* ContentView.swift */,
+				FC0000000000000000000007 /* Dashboard */,
+				FC0000000000000000000008 /* Expenses */,
+				FC0000000000000000000009 /* Reports */,
+				FC000000000000000000000A /* Categories */,
+				FC000000000000000000000B /* Import */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		FC0000000000000000000007 /* Dashboard */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000007 /* DashboardView.swift */,
+			);
+			path = Dashboard;
+			sourceTree = "<group>";
+		};
+		FC0000000000000000000008 /* Expenses */ = {
+			isa = PBXGroup;
+			children = (
+				FA0000000000000000000008 /* ExpenseListView.swift */,
+				FA0000000000000000000009 /* AddExpenseView.swift */,
+			);
+			path = Expenses;
+			sourceTree = "<group>";
+		};
+		FC0000000000000000000009 /* Reports */ = {
+			isa = PBXGroup;
+			children = (
+				FA000000000000000000000A /* ReportsView.swift */,
+			);
+			path = Reports;
+			sourceTree = "<group>";
+		};
+		FC000000000000000000000A /* Categories */ = {
+			isa = PBXGroup;
+			children = (
+				FA000000000000000000000B /* CategoryManagementView.swift */,
+			);
+			path = Categories;
+			sourceTree = "<group>";
+		};
+		FC000000000000000000000B /* Import */ = {
+			isa = PBXGroup;
+			children = (
+				FA000000000000000000000C /* ImportView.swift */,
+			);
+			path = Import;
+			sourceTree = "<group>";
+		};
+		FC000000000000000000000C /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				FA000000000000000000000F /* Expendio.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		FE0000000000000000000001 /* Expendio */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = AA0000000000000000000002 /* Build configuration list for PBXNativeTarget "Expendio" */;
+			buildPhases = (
+				FD0000000000000000000001 /* Sources */,
+				FD0000000000000000000002 /* Resources */,
+				FD0000000000000000000003 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = Expendio;
+			productName = Expendio;
+			productReference = FA000000000000000000000F /* Expendio.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		FF0000000000000000000001 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1540;
+				LastUpgradeCheck = 1540;
+				TargetAttributes = {
+					FE0000000000000000000001 = {
+						CreatedOnToolsVersion = 15.4;
+					};
+				};
+			};
+			buildConfigurationList = AA0000000000000000000001 /* Build configuration list for PBXProject "Expendio" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				Base,
+			);
+			mainGroup = FC0000000000000000000001 /* Root */;
+			productRefGroup = FC000000000000000000000C /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				FE0000000000000000000001 /* Expendio */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		FD0000000000000000000002 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA000000000000000000010D /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		FD0000000000000000000001 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FA0000000000000000000101 /* ExpendioApp.swift in Sources */,
+				FA0000000000000000000102 /* Expense.swift in Sources */,
+				FA0000000000000000000103 /* Category.swift in Sources */,
+				FA0000000000000000000104 /* SplitwiseImporter.swift in Sources */,
+				FA0000000000000000000105 /* Theme.swift in Sources */,
+				FA0000000000000000000106 /* ContentView.swift in Sources */,
+				FA0000000000000000000107 /* DashboardView.swift in Sources */,
+				FA0000000000000000000108 /* ExpenseListView.swift in Sources */,
+				FA0000000000000000000109 /* AddExpenseView.swift in Sources */,
+				FA000000000000000000010A /* ReportsView.swift in Sources */,
+				FA000000000000000000010B /* CategoryManagementView.swift in Sources */,
+				FA000000000000000000010C /* ImportView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		AB0000000000000000000001 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		AB0000000000000000000002 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 14.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = macosx;
+				SWIFT_COMPILATION_MODE = wholemodule;
+			};
+			name = Release;
+		};
+		AB0000000000000000000003 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Expendio/Expendio.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Expendio;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.expendio.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Debug;
+		};
+		AB0000000000000000000004 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Expendio/Expendio.entitlements;
+				CODE_SIGN_STYLE = Automatic;
+				COMBINE_HIDPI_IMAGES = YES;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_TEAM = "";
+				ENABLE_HARDENED_RUNTIME = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_CFBundleDisplayName = Expendio;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.finance";
+				INFOPLIST_KEY_NSHumanReadableCopyright = "";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/../Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.expendio.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		AA0000000000000000000001 /* Build configuration list for PBXProject "Expendio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AB0000000000000000000001 /* Debug */,
+				AB0000000000000000000002 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		AA0000000000000000000002 /* Build configuration list for PBXNativeTarget "Expendio" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AB0000000000000000000003 /* Debug */,
+				AB0000000000000000000004 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = FF0000000000000000000001 /* Project object */;
+}
