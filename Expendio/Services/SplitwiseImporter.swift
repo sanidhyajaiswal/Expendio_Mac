@@ -135,10 +135,12 @@ class SplitwiseImporter {
             } ?? categories.first { $0.name == "Other" }
             
             // Check for duplicates
+            let itemTitle = item.description
+            let itemCost = item.cost
             let descriptor = FetchDescriptor<Expense>(
                 predicate: #Predicate<Expense> { expense in
-                    expense.title == item.description &&
-                    expense.amount == item.cost &&
+                    expense.title == itemTitle &&
+                    expense.amount == itemCost &&
                     expense.source == "splitwise"
                 }
             )

@@ -167,4 +167,4 @@ struct CategoryManagementView: View {
     }
 }
 
-extension ExpenseCategory: @retroactive Identifiable { }
+extension ExpenseCategory: Identifiable { }
