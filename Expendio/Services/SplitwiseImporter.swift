@@ -90,15 +90,30 @@ class SplitwiseImporter {
             }
             guard let date = parsedDate else { continue }
             
-            // Parse cost — prefer person column if available, fall back to total cost
-            let amountString: String
+            // Parse cost using person column logic
+            let totalCostClean = costString.replacingOccurrences(of: ",", with: "")
+            guard let totalCost = Double(totalCostClean), totalCost > 0 else { continue }
+            
+            let cost: Double
             if let pIdx = personIndex, fields.count > pIdx {
-                amountString = fields[pIdx].trimmingCharacters(in: .whitespaces)
+                let personString = fields[pIdx].trimmingCharacters(in: .whitespaces).replacingOccurrences(of: ",", with: "")
+                if let personValue = Double(personString) {
+                    if personValue > 0 {
+                        // Positive = you paid for the group; your expense = total - what others owe you
+                        cost = totalCost - personValue
+                    } else if personValue < 0 {
+                        // Negative = you owe someone; your expense = absolute value
+                        cost = abs(personValue)
+                    } else {
+                        continue // 0 means no involvement, skip
+                    }
+                } else {
+                    cost = totalCost // Couldn't parse person value, use total
+                }
             } else {
-                amountString = costString
+                cost = totalCost // No person column, use total
             }
-            let cleanCost = amountString.replacingOccurrences(of: ",", with: "")
-            guard let cost = Double(cleanCost), cost > 0 else { continue }
+            guard cost > 0 else { continue }
             
             // Category
             let category: String

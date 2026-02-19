@@ -34,6 +34,11 @@ struct ContentView: View {
         return profiles.first { $0.id == uuid } ?? profiles.first
     }
     
+    @State private var setupName = ""
+    @State private var setupColor = "#7C3AED"
+    
+    private let setupColors = ["#7C3AED", "#FF6B6B", "#4ECDC4", "#F59E0B", "#3B82F6", "#EC4899", "#10B981", "#F97316"]
+    
     var body: some View {
         Group {
             if let profile = activeProfile {
@@ -44,13 +49,8 @@ struct ContentView: View {
         }
         .background(AppTheme.background)
         .onAppear {
-            if profiles.isEmpty {
-                let defaultProfile = Profile(name: "Personal")
-                modelContext.insert(defaultProfile)
-                seedCategories(for: defaultProfile.id)
-                try? modelContext.save()
-                activeProfileIdString = defaultProfile.id.uuidString
-            } else if activeProfile == nil, let first = profiles.first {
+            // Only auto-select if profiles exist but none is selected
+            if !profiles.isEmpty, activeProfile == nil, let first = profiles.first {
                 activeProfileIdString = first.id.uuidString
             }
         }
@@ -61,17 +61,83 @@ struct ContentView: View {
     
     // MARK: - Profile Setup (first launch)
     private var profileSetupView: some View {
-        VStack(spacing: 20) {
-            Image(systemName: "person.crop.circle.fill")
-                .font(.system(size: 56))
-                .foregroundColor(AppTheme.accent)
-            Text("Welcome to Expendio")
-                .font(.system(size: 24, weight: .bold, design: .rounded))
-                .foregroundColor(AppTheme.textPrimary)
-            Text("Setting up your profile...")
-                .font(.system(size: 14))
-                .foregroundColor(AppTheme.textSecondary)
-            ProgressView().tint(AppTheme.accent)
+        VStack(spacing: 0) {
+            Spacer()
+            
+            VStack(spacing: 32) {
+                // Header
+                VStack(spacing: 12) {
+                    Image(systemName: "indianrupeesign.circle.fill")
+                        .font(.system(size: 56, weight: .bold))
+                        .foregroundColor(Color(hex: setupColor))
+                    Text("Welcome to Expendio")
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundColor(AppTheme.textPrimary)
+                    Text("Let's set up your profile to get started")
+                        .font(.system(size: 15))
+                        .foregroundColor(AppTheme.textSecondary)
+                }
+                
+                // Form
+                VStack(spacing: 20) {
+                    // Name
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "person.fill").font(.system(size: 12)).foregroundColor(Color(hex: setupColor))
+                            Text("Your Name").font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textSecondary)
+                        }
+                        TextField("Enter your name", text: $setupName)
+                            .textFieldStyle(.plain).font(.system(size: 16)).foregroundColor(AppTheme.textPrimary)
+                            .padding(14)
+                            .background(
+                                RoundedRectangle(cornerRadius: 12).fill(AppTheme.surfaceElevated)
+                                    .overlay(RoundedRectangle(cornerRadius: 12).stroke(AppTheme.border.opacity(0.5), lineWidth: 1))
+                            )
+                    }
+                    
+                    // Color Picker
+                    VStack(alignment: .leading, spacing: 8) {
+                        HStack(spacing: 6) {
+                            Image(systemName: "paintpalette.fill").font(.system(size: 12)).foregroundColor(Color(hex: setupColor))
+                            Text("Profile Color").font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textSecondary)
+                        }
+                        HStack(spacing: 10) {
+                            ForEach(setupColors, id: \.self) { c in
+                                Button { setupColor = c } label: {
+                                    Circle().fill(Color(hex: c)).frame(width: 32, height: 32)
+                                        .overlay(Circle().stroke(Color.white, lineWidth: setupColor == c ? 2.5 : 0))
+                                        .scaleEffect(setupColor == c ? 1.15 : 1.0)
+                                        .animation(.spring(response: 0.3), value: setupColor == c)
+                                }.buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+                .padding(28)
+                .background(
+                    RoundedRectangle(cornerRadius: 20).fill(AppTheme.surface.opacity(0.5))
+                        .overlay(RoundedRectangle(cornerRadius: 20).stroke(AppTheme.border.opacity(0.3), lineWidth: 1))
+                )
+                
+                // Create Button
+                Button {
+                    createProfile()
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "arrow.right.circle.fill").font(.system(size: 16))
+                        Text("Get Started").font(.system(size: 15, weight: .semibold))
+                    }
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 32).padding(.vertical, 14)
+                    .background(RoundedRectangle(cornerRadius: 14).fill(Color(hex: setupColor)))
+                }
+                .buttonStyle(.plain)
+                .disabled(setupName.trimmingCharacters(in: .whitespaces).isEmpty)
+                .opacity(setupName.trimmingCharacters(in: .whitespaces).isEmpty ? 0.5 : 1)
+            }
+            .frame(maxWidth: 420)
+            
+            Spacer()
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -213,6 +279,21 @@ struct ContentView: View {
         case .categories: CategoryManagementView(profileId: profileId)
         case .importCSV: ImportView(profileId: profileId)
         }
+    }
+    
+    // MARK: - Create Profile
+    private func createProfile() {
+        let name = setupName.trimmingCharacters(in: .whitespaces)
+        guard !name.isEmpty else { return }
+        let profile = Profile(name: name, colorHex: setupColor)
+        modelContext.insert(profile)
+        seedCategories(for: profile.id)
+        do {
+            try modelContext.save()
+        } catch {
+            print("Failed to save profile: \(error)")
+        }
+        activeProfileIdString = profile.id.uuidString
     }
     
     // MARK: - Seed Categories
