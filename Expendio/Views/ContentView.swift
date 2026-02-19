@@ -156,24 +156,17 @@ struct ContentView: View {
     // MARK: - Sidebar
     private func sidebar(profileId: UUID) -> some View {
         VStack(spacing: 0) {
-            // Profile Selector
-            profileSelector
-                .padding(.top, 16)
-                .padding(.horizontal, 12)
-            
-            Divider().overlay(AppTheme.border.opacity(0.3)).padding(.vertical, 12)
-            
             // Logo
             HStack(spacing: 10) {
                 Image(systemName: "indianrupeesign.circle.fill")
-                    .font(.system(size: 28, weight: .bold))
+                    .font(.system(size: 26, weight: .bold))
                     .foregroundColor(AppTheme.accent)
                 Text("Expendio")
-                    .font(.system(size: 22, weight: .bold, design: .rounded))
+                    .font(.system(size: 20, weight: .bold, design: .rounded))
                     .foregroundColor(AppTheme.textPrimary)
             }
-            .padding(.bottom, 24).padding(.horizontal, 20)
-            
+            .padding(.horizontal, 20).padding(.top, 20).padding(.bottom, 20)
+
             // Menu Items
             VStack(spacing: 4) {
                 ForEach(SidebarItem.allCases) { item in
@@ -181,71 +174,199 @@ struct ContentView: View {
                 }
             }
             .padding(.horizontal, 12)
-            
+
             Spacer()
-            
-            VStack(spacing: 8) {
-                Divider().overlay(AppTheme.border.opacity(0.3))
-                HStack {
-                    Image(systemName: "gearshape.fill").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary)
-                    Text("v1.0").font(.system(size: 12)).foregroundColor(AppTheme.textMuted)
-                }
-                .padding(.bottom, 16)
-            }
+
+            // Profile card at bottom
+            Divider().overlay(AppTheme.border.opacity(0.3))
+            profileBottomCard
         }
         .frame(width: 220)
         .background(AppTheme.surface.opacity(0.5))
     }
     
-    // MARK: - Profile Selector
-    private var profileSelector: some View {
-        Menu {
-            ForEach(profiles, id: \.id) { profile in
-                Button {
-                    activeProfileIdString = profile.id.uuidString
-                    selectedItem = .dashboard
-                } label: {
-                    HStack {
-                        Text(profile.name)
-                        if profile.id == activeProfile?.id {
-                            Image(systemName: "checkmark")
-                        }
-                    }
-                }
-            }
-            Divider()
-            Button("Manage Profiles...") { showProfileSheet = true }
-        } label: {
-            HStack(spacing: 10) {
+    // MARK: - Profile Bottom Card
+    @State private var showProfilePopover = false
+    @State private var editingProfileName = ""
+    @State private var editingProfileColor = "#7C3AED"
+    private let profileColors = ["#7C3AED","#FF6B6B","#4ECDC4","#F59E0B","#3B82F6","#EC4899","#10B981","#F97316"]
+    @State private var newProfileName = ""
+    @State private var newProfileColor = "#7C3AED"
+
+    private var profileBottomCard: some View {
+        let profile = activeProfile
+        let color = Color(hex: profile?.colorHex ?? "#7C3AED")
+        return Button { showProfilePopover = true } label: {
+            HStack(spacing: 12) {
+                // Avatar
                 ZStack {
-                    Circle()
-                        .fill(Color(hex: activeProfile?.colorHex ?? "#7C3AED").opacity(0.2))
-                        .frame(width: 34, height: 34)
-                    Text(String((activeProfile?.name ?? "P").prefix(1)).uppercased())
-                        .font(.system(size: 14, weight: .bold))
-                        .foregroundColor(Color(hex: activeProfile?.colorHex ?? "#7C3AED"))
+                    Circle().fill(color.opacity(0.2)).frame(width: 40, height: 40)
+                    Text(String((profile?.name ?? "P").prefix(1)).uppercased())
+                        .font(.system(size: 17, weight: .bold))
+                        .foregroundColor(color)
                 }
                 VStack(alignment: .leading, spacing: 2) {
-                    Text(activeProfile?.name ?? "Profile")
+                    Text(profile?.name ?? "Profile")
                         .font(.system(size: 13, weight: .semibold))
                         .foregroundColor(AppTheme.textPrimary)
-                    Text("Switch profile")
+                        .lineLimit(1)
+                    Text("View settings")
                         .font(.system(size: 10))
                         .foregroundColor(AppTheme.textMuted)
                 }
                 Spacer()
-                Image(systemName: "chevron.up.chevron.down")
-                    .font(.system(size: 10))
+                Image(systemName: "gearshape.fill")
+                    .font(.system(size: 13))
                     .foregroundColor(AppTheme.textMuted)
             }
-            .padding(8)
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(AppTheme.surfaceElevated.opacity(0.5))
-                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(AppTheme.border.opacity(0.3), lineWidth: 1))
-            )
+            .padding(.horizontal, 16).padding(.vertical, 14)
         }
-        .menuStyle(.borderlessButton)
+        .buttonStyle(.plain)
+        .popover(isPresented: $showProfilePopover, arrowEdge: .bottom) {
+            profilePopover
+        }
+        .onAppear {
+            editingProfileName = profile?.name ?? ""
+            editingProfileColor = profile?.colorHex ?? "#7C3AED"
+        }
+        .onChange(of: activeProfile?.id) { _, _ in
+            editingProfileName = activeProfile?.name ?? ""
+            editingProfileColor = activeProfile?.colorHex ?? "#7C3AED"
+        }
+    }
+
+    private var profilePopover: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            // Header
+            Text("Profile Settings")
+                .font(.system(size: 15, weight: .bold, design: .rounded))
+                .foregroundColor(AppTheme.textPrimary)
+                .padding(.horizontal, 20).padding(.top, 18).padding(.bottom, 14)
+
+            Divider().overlay(AppTheme.border.opacity(0.4))
+
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+
+                    // Edit current profile
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label("Edit Profile", systemImage: "person.fill")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(AppTheme.textMuted)
+
+                        TextField("Name", text: $editingProfileName)
+                            .textFieldStyle(.plain).font(.system(size: 13))
+                            .foregroundColor(AppTheme.textPrimary)
+                            .padding(10)
+                            .background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.surfaceElevated)
+                                .overlay(RoundedRectangle(cornerRadius: 8).stroke(AppTheme.border.opacity(0.5), lineWidth: 1)))
+
+                        HStack(spacing: 8) {
+                            ForEach(profileColors, id: \.self) { c in
+                                Button { editingProfileColor = c } label: {
+                                    Circle().fill(Color(hex: c)).frame(width: 24, height: 24)
+                                        .overlay(Circle().stroke(Color.white, lineWidth: editingProfileColor == c ? 2.5 : 0))
+                                        .scaleEffect(editingProfileColor == c ? 1.15 : 1)
+                                }.buttonStyle(.plain)
+                            }
+                        }
+
+                        Button {
+                            guard !editingProfileName.trimmingCharacters(in: .whitespaces).isEmpty else { return }
+                            activeProfile?.name = editingProfileName.trimmingCharacters(in: .whitespaces)
+                            activeProfile?.colorHex = editingProfileColor
+                            try? modelContext.save()
+                        } label: {
+                            Text("Save Changes")
+                                .font(.system(size: 12, weight: .semibold)).foregroundColor(.white)
+                                .padding(.horizontal, 14).padding(.vertical, 7)
+                                .background(RoundedRectangle(cornerRadius: 8).fill(Color(hex: editingProfileColor)))
+                        }.buttonStyle(.plain)
+                    }
+
+                    Divider().overlay(AppTheme.border.opacity(0.3))
+
+                    // Switch profile
+                    VStack(alignment: .leading, spacing: 8) {
+                        Label("Switch Profile", systemImage: "arrow.left.arrow.right")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(AppTheme.textMuted)
+
+                        ForEach(profiles, id: \.id) { profile in
+                            Button {
+                                activeProfileIdString = profile.id.uuidString
+                                selectedItem = .dashboard
+                                showProfilePopover = false
+                            } label: {
+                                HStack(spacing: 10) {
+                                    ZStack {
+                                        Circle().fill(Color(hex: profile.colorHex).opacity(0.2)).frame(width: 28, height: 28)
+                                        Text(String(profile.name.prefix(1)).uppercased())
+                                            .font(.system(size: 11, weight: .bold))
+                                            .foregroundColor(Color(hex: profile.colorHex))
+                                    }
+                                    Text(profile.name).font(.system(size: 13)).foregroundColor(AppTheme.textPrimary)
+                                    Spacer()
+                                    if profile.id == activeProfile?.id {
+                                        Image(systemName: "checkmark").font(.system(size: 11, weight: .semibold)).foregroundColor(AppTheme.accent)
+                                    }
+                                }
+                                .padding(.horizontal, 10).padding(.vertical, 7)
+                                .background(RoundedRectangle(cornerRadius: 8)
+                                    .fill(profile.id == activeProfile?.id ? AppTheme.accent.opacity(0.08) : Color.clear))
+                            }.buttonStyle(.plain)
+                        }
+                    }
+
+                    Divider().overlay(AppTheme.border.opacity(0.3))
+
+                    // Add new profile
+                    VStack(alignment: .leading, spacing: 10) {
+                        Label("Add Profile", systemImage: "plus.circle")
+                            .font(.system(size: 11, weight: .semibold))
+                            .foregroundColor(AppTheme.textMuted)
+
+                        HStack(spacing: 8) {
+                            TextField("New profile name", text: $newProfileName)
+                                .textFieldStyle(.plain).font(.system(size: 13))
+                                .foregroundColor(AppTheme.textPrimary)
+                                .padding(10)
+                                .background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.surfaceElevated)
+                                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(AppTheme.border.opacity(0.5), lineWidth: 1)))
+
+                            Button {
+                                let name = newProfileName.trimmingCharacters(in: .whitespaces)
+                                guard !name.isEmpty else { return }
+                                let p = Profile(name: name, colorHex: newProfileColor)
+                                modelContext.insert(p)
+                                for (n, i, c) in ExpenseCategory.defaults { modelContext.insert(ExpenseCategory(name: n, icon: i, colorHex: c, profileId: p.id)) }
+                                try? modelContext.save()
+                                activeProfileIdString = p.id.uuidString
+                                newProfileName = ""
+                                showProfilePopover = false
+                            } label: {
+                                Image(systemName: "plus").font(.system(size: 13, weight: .semibold)).foregroundColor(.white)
+                                    .frame(width: 32, height: 32)
+                                    .background(RoundedRectangle(cornerRadius: 8).fill(Color(hex: newProfileColor)))
+                            }.buttonStyle(.plain).disabled(newProfileName.trimmingCharacters(in: .whitespaces).isEmpty)
+                        }
+
+                        HStack(spacing: 6) {
+                            ForEach(profileColors, id: \.self) { c in
+                                Button { newProfileColor = c } label: {
+                                    Circle().fill(Color(hex: c)).frame(width: 20, height: 20)
+                                        .overlay(Circle().stroke(Color.white, lineWidth: newProfileColor == c ? 2 : 0))
+                                }.buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+                .padding(20)
+            }
+        }
+        .frame(width: 300)
+        .frame(maxHeight: 520)
+        .background(AppTheme.background)
     }
     
     private func sidebarButton(_ item: SidebarItem) -> some View {
