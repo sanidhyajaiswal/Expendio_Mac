@@ -6,6 +6,7 @@ struct DashboardView: View {
     let profileId: UUID
     @Query private var allExpenses: [Expense]
     @Query private var categories: [ExpenseCategory]
+    @Environment(\.themeAccent) private var themeAccent
     
     init(profileId: UUID) {
         self.profileId = profileId
@@ -66,9 +67,9 @@ struct DashboardView: View {
     private var statsGrid: some View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 10) {
-                HStack { Image(systemName: "indianrupeesign.circle.fill").foregroundColor(AppTheme.accent); Text("This Month").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium))
+                HStack { Image(systemName: "indianrupeesign.circle.fill").foregroundColor(themeAccent); Text("This Month").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium))
                 Text(fmt(totalThisMonth)).font(.system(size: 32, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
-            }.statCard(accent: AppTheme.accent).frame(maxHeight: .infinity)
+            }.statCard(accent: themeAccent).frame(maxHeight: .infinity)
             
             VStack(alignment: .leading, spacing: 10) {
                 HStack { Image(systemName: "chart.line.uptrend.xyaxis").foregroundColor(AppTheme.accentSecondary); Text("Daily Average").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium))
@@ -97,9 +98,9 @@ struct DashboardView: View {
             if last30DaysData.contains(where: { $0.1 > 0 }) {
                 Chart(last30DaysData, id: \.0) { item in
                     AreaMark(x: .value("Date", item.0), y: .value("Amount", item.1))
-                        .foregroundStyle(AppTheme.accent.opacity(0.15)).interpolationMethod(.catmullRom)
+                        .foregroundStyle(themeAccent.opacity(0.15)).interpolationMethod(.catmullRom)
                     LineMark(x: .value("Date", item.0), y: .value("Amount", item.1))
-                        .foregroundStyle(AppTheme.accent).lineStyle(StrokeStyle(lineWidth: 2)).interpolationMethod(.catmullRom)
+                        .foregroundStyle(themeAccent).lineStyle(StrokeStyle(lineWidth: 2)).interpolationMethod(.catmullRom)
                 }
                 .chartXAxis { AxisMarks(values: .stride(by: .day, count: 7)) { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.3)); AxisValueLabel(format: .dateTime.day().month(.abbreviated)).foregroundStyle(AppTheme.textSecondary) } }
                 .chartYAxis { AxisMarks { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.3)); AxisValueLabel().foregroundStyle(AppTheme.textSecondary) } }

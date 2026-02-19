@@ -5,6 +5,7 @@ struct CategoryManagementView: View {
     let profileId: UUID
     @Environment(\.modelContext) private var modelContext
     @Query private var categories: [ExpenseCategory]
+    @Environment(\.themeAccent) private var themeAccent
     
     @State private var showAddForm = false
     @State private var editingCategory: ExpenseCategory?
@@ -85,7 +86,7 @@ struct CategoryManagementView: View {
             VStack(spacing: 10) {
                 ZStack { RoundedRectangle(cornerRadius: 16).fill(Color(hex: formColor).opacity(0.15)).frame(width: 60, height: 60); Image(systemName: formIcon).font(.system(size: 28)).foregroundColor(Color(hex: formColor)) }
                 Text(editing != nil ? "Edit Category" : "New Category").font(.system(size: 20, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
-            }.frame(maxWidth: .infinity).padding(.vertical, 24).background(AppTheme.accent.opacity(0.08))
+            }.frame(maxWidth: .infinity).padding(.vertical, 24).background(themeAccent.opacity(0.08))
             
             VStack(spacing: 20) {
                 VStack(alignment: .leading, spacing: 8) {

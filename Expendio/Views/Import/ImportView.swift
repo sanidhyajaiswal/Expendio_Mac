@@ -7,6 +7,7 @@ struct ImportView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var categories: [ExpenseCategory]
     @Query private var profiles: [Profile]
+    @Environment(\.themeAccent) private var themeAccent
     
     @State private var isDragOver = false
     @State private var parsedExpenses: [ParsedExpense] = []
@@ -45,11 +46,11 @@ struct ImportView: View {
     
     private var dropZone: some View {
         VStack(spacing: 20) {
-            Image(systemName: "square.and.arrow.down.fill").font(.system(size: 48)).foregroundColor(isDragOver ? AppTheme.accent : AppTheme.textMuted).scaleEffect(isDragOver ? 1.15 : 1.0).animation(.spring(response: 0.3), value: isDragOver)
+            Image(systemName: "square.and.arrow.down.fill").font(.system(size: 48)).foregroundColor(isDragOver ? themeAccent : AppTheme.textMuted).scaleEffect(isDragOver ? 1.15 : 1.0).animation(.spring(response: 0.3), value: isDragOver)
             VStack(spacing: 6) { Text("Drop Splitwise CSV here").font(.system(size: 18, weight: .semibold)).foregroundColor(AppTheme.textPrimary); Text("or click to browse").font(.system(size: 14)).foregroundColor(AppTheme.textSecondary) }
             Button { openFilePicker() } label: { HStack(spacing: 6) { Image(systemName: "folder"); Text("Browse Files") }.gradientButton() }.buttonStyle(.plain)
         }.frame(maxWidth: .infinity).frame(height: 260)
-        .background(RoundedRectangle(cornerRadius: 20).fill(isDragOver ? AppTheme.accent.opacity(0.05) : AppTheme.surface.opacity(0.5)).overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [10, 6], dashPhase: dashOffset)).foregroundStyle(isDragOver ? AppTheme.accent : AppTheme.border)))
+        .background(RoundedRectangle(cornerRadius: 20).fill(isDragOver ? themeAccent.opacity(0.05) : AppTheme.surface.opacity(0.5)).overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [10, 6], dashPhase: dashOffset)).foregroundStyle(isDragOver ? themeAccent : AppTheme.border)))
         .onDrop(of: [UTType.commaSeparatedText, UTType.fileURL], isTargeted: $isDragOver) { providers in handleDrop(providers); return true }
         .onAppear { withAnimation(.linear(duration: 8).repeatForever(autoreverses: false)) { dashOffset = 32 } }
     }

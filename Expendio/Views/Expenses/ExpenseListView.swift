@@ -6,6 +6,7 @@ struct ExpenseListView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var expenses: [Expense]
     @Query private var categories: [ExpenseCategory]
+    @Environment(\.themeAccent) private var themeAccent
 
     @State private var searchText = ""
     @State private var selectedCategory: ExpenseCategory?
@@ -129,7 +130,7 @@ struct ExpenseListView: View {
             } label: {
                 HStack(spacing: 6) {
                     Image(systemName: allSelected ? "checkmark.circle.fill" : "circle")
-                        .foregroundColor(allSelected ? AppTheme.accent : AppTheme.textSecondary)
+                        .foregroundColor(allSelected ? themeAccent : AppTheme.textSecondary)
                     Text(allSelected ? "Deselect All" : "Select All")
                         .font(.system(size: 13, weight: .medium))
                         .foregroundColor(AppTheme.textSecondary)
@@ -139,7 +140,7 @@ struct ExpenseListView: View {
             if !selectedIds.isEmpty {
                 Text("\(selectedIds.count) selected")
                     .font(.system(size: 13, weight: .semibold))
-                    .foregroundColor(AppTheme.accent)
+                    .foregroundColor(themeAccent)
 
                 Spacer()
 
@@ -163,8 +164,8 @@ struct ExpenseListView: View {
             }
         }
         .padding(.horizontal, 32).padding(.vertical, 10)
-        .background(AppTheme.accent.opacity(0.06))
-        .overlay(Rectangle().fill(AppTheme.accent.opacity(0.15)).frame(height: 1), alignment: .bottom)
+        .background(themeAccent.opacity(0.06))
+        .overlay(Rectangle().fill(themeAccent.opacity(0.15)).frame(height: 1), alignment: .bottom)
         .transition(.move(edge: .top).combined(with: .opacity))
     }
 
@@ -212,7 +213,7 @@ struct ExpenseListView: View {
                 if isSelectMode {
                     // Column header checkbox
                     Image(systemName: allSelected ? "checkmark.circle.fill" : "circle")
-                        .foregroundColor(allSelected ? AppTheme.accent : AppTheme.textMuted)
+                        .foregroundColor(allSelected ? themeAccent : AppTheme.textMuted)
                         .font(.system(size: 15))
                         .frame(width: 36)
                         .onTapGesture {
@@ -259,7 +260,7 @@ struct ExpenseListView: View {
         let isSelected = selectedIds.contains(expense.id)
         return HStack(spacing: 0) {
             Image(systemName: isSelected ? "checkmark.circle.fill" : "circle")
-                .foregroundColor(isSelected ? AppTheme.accent : AppTheme.textMuted)
+                .foregroundColor(isSelected ? themeAccent : AppTheme.textMuted)
                 .font(.system(size: 15))
                 .frame(width: 36)
 
@@ -279,7 +280,7 @@ struct ExpenseListView: View {
             Text(expense.notes.isEmpty ? "—" : expense.notes).font(.system(size: 12)).foregroundColor(AppTheme.textMuted).lineLimit(1).frame(width: 150, alignment: .leading).padding(.leading, 16)
         }
         .padding(.horizontal, 20).padding(.vertical, 10)
-        .background(isSelected ? AppTheme.accent.opacity(0.08) : (hoveredExpenseId == expense.id ? AppTheme.surfaceElevated.opacity(0.4) : Color.clear))
+        .background(isSelected ? themeAccent.opacity(0.08) : (hoveredExpenseId == expense.id ? AppTheme.surfaceElevated.opacity(0.4) : Color.clear))
         .contentShape(Rectangle())
         .onTapGesture {
             withAnimation(.easeInOut(duration: 0.12)) {
@@ -335,7 +336,7 @@ struct ExpenseListView: View {
                 Button { saveEdit(expense) } label: { Image(systemName: "checkmark").font(.system(size: 12, weight: .bold)).foregroundColor(AppTheme.success).frame(width: 28, height: 28).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.success.opacity(0.15))) }.buttonStyle(.plain)
                 Button { editingExpenseId = nil } label: { Image(systemName: "xmark").font(.system(size: 12, weight: .bold)).foregroundColor(AppTheme.danger).frame(width: 28, height: 28).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.danger.opacity(0.15))) }.buttonStyle(.plain)
             }.frame(width: 80)
-        }.padding(.horizontal, 20).padding(.vertical, 8).background(AppTheme.accent.opacity(0.05))
+        }.padding(.horizontal, 20).padding(.vertical, 8).background(themeAccent.opacity(0.05))
     }
 
     // MARK: - Empty State

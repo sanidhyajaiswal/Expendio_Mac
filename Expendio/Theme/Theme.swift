@@ -61,6 +61,18 @@ struct AppTheme {
     ]
 }
 
+// MARK: - Theme Accent Environment Key
+struct ThemeAccentKey: EnvironmentKey {
+    static let defaultValue: Color = AppTheme.accent
+}
+
+extension EnvironmentValues {
+    var themeAccent: Color {
+        get { self[ThemeAccentKey.self] }
+        set { self[ThemeAccentKey.self] = newValue }
+    }
+}
+
 // MARK: - View Modifiers
 struct GlassCard: ViewModifier {
     var padding: CGFloat = 20
@@ -84,6 +96,7 @@ struct GlassCard: ViewModifier {
 }
 
 struct GradientButton: ViewModifier {
+    @Environment(\.themeAccent) private var accent
     func body(content: Content) -> some View {
         content
             .font(.system(size: 13, weight: .semibold))
@@ -92,7 +105,7 @@ struct GradientButton: ViewModifier {
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(AppTheme.accent)
+                    .fill(accent)
             )
     }
 }
@@ -137,5 +150,9 @@ extension View {
     
     func statCard(accent: Color = AppTheme.accent) -> some View {
         modifier(StatCard(accentColor: accent))
+    }
+    
+    func themeAccent(_ color: Color) -> some View {
+        environment(\.themeAccent, color)
     }
 }

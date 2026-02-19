@@ -28,6 +28,8 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var profiles: [Profile]
     @AppStorage("activeProfileId") private var activeProfileIdString: String = ""
+    // Computed directly (not from environment — ContentView is the source of truth)
+    private var themeAccent: Color { Color(hex: activeProfile?.colorHex ?? "#7C3AED") }
     
     private var activeProfile: Profile? {
         guard let uuid = UUID(uuidString: activeProfileIdString) else { return profiles.first }
@@ -40,13 +42,14 @@ struct ContentView: View {
     private let setupColors = ["#7C3AED", "#FF6B6B", "#4ECDC4", "#F59E0B", "#3B82F6", "#EC4899", "#10B981", "#F97316"]
     
     var body: some View {
-        Group {
+        return Group {
             if let profile = activeProfile {
                 mainLayout(profileId: profile.id)
             } else {
                 profileSetupView
             }
         }
+        .themeAccent(themeAccent)
         .background(AppTheme.background)
         .onAppear {
             // Only auto-select if profiles exist but none is selected
@@ -171,7 +174,7 @@ struct ContentView: View {
                 HStack(spacing: 10) {
                     Image(systemName: "indianrupeesign.circle.fill")
                         .font(.system(size: 26, weight: .bold))
-                        .foregroundColor(AppTheme.accent)
+                        .foregroundColor(themeAccent)
                     Text("Expendio")
                         .font(.system(size: 20, weight: .bold, design: .rounded))
                         .foregroundColor(AppTheme.textPrimary)
@@ -332,13 +335,13 @@ struct ContentView: View {
                         if p.id == activeProfile?.id {
                             Image(systemName: "checkmark")
                                 .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(AppTheme.accent)
+                                .foregroundColor(themeAccent)
                         }
                     }
                     .padding(.horizontal, 12).padding(.vertical, 8)
                     .background(
                         RoundedRectangle(cornerRadius: 8)
-                            .fill(p.id == activeProfile?.id ? AppTheme.accent.opacity(0.1) : Color.clear)
+                            .fill(p.id == activeProfile?.id ? themeAccent.opacity(0.1) : Color.clear)
                     )
                     .contentShape(Rectangle())
                 }
@@ -438,7 +441,7 @@ struct ContentView: View {
             .padding(.horizontal, 14).padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(selectedItem == item ? AppTheme.accent : (hoveredItem == item ? AppTheme.surfaceElevated : Color.clear))
+                    .fill(selectedItem == item ? themeAccent : (hoveredItem == item ? AppTheme.surfaceElevated : Color.clear))
                     .opacity(selectedItem == item ? 1 : 0.8)
             )
         }
@@ -488,6 +491,7 @@ struct ProfileManagementView: View {
     @Binding var activeProfileIdString: String
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
+    @Environment(\.themeAccent) private var themeAccent
     @Query private var profiles: [Profile]
     
     @State private var newName = ""
@@ -501,7 +505,7 @@ struct ProfileManagementView: View {
             HStack {
                 Text("Manage Profiles").font(.system(size: 20, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
                 Spacer()
-                Button("Done") { dismiss() }.font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.accent).buttonStyle(.plain)
+                Button("Done") { dismiss() }.font(.system(size: 13, weight: .medium)).foregroundColor(themeAccent).buttonStyle(.plain)
             }
             .padding(20)
             
@@ -543,7 +547,7 @@ struct ProfileManagementView: View {
                                 try? modelContext.save()
                                 newName = ""
                             } label: {
-                                Image(systemName: "plus.circle.fill").font(.system(size: 24)).foregroundColor(AppTheme.accent)
+                                Image(systemName: "plus.circle.fill").font(.system(size: 24)).foregroundColor(themeAccent)
                             }.buttonStyle(.plain).disabled(newName.isEmpty)
                         }
                     }
@@ -562,9 +566,9 @@ struct ProfileManagementView: View {
             Text(profile.name).font(.system(size: 14, weight: .medium)).foregroundColor(AppTheme.textPrimary)
             
             if UUID(uuidString: activeProfileIdString) == profile.id {
-                Text("Active").font(.system(size: 11, weight: .medium)).foregroundColor(AppTheme.accent)
+                Text("Active").font(.system(size: 11, weight: .medium)).foregroundColor(themeAccent)
                     .padding(.horizontal, 8).padding(.vertical, 3)
-                    .background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.accent.opacity(0.15)))
+                    .background(RoundedRectangle(cornerRadius: 6).fill(themeAccent.opacity(0.15)))
             }
             
             Spacer()

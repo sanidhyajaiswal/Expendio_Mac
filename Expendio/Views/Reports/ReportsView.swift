@@ -10,6 +10,7 @@ struct ReportsView: View {
     @Query private var categories: [ExpenseCategory]
     @State private var selectedTab: ReportTab = .monthly
     @State private var currentDate = Date()
+    @Environment(\.themeAccent) private var themeAccent
     
     init(profileId: UUID) {
         self.profileId = profileId
@@ -34,7 +35,7 @@ struct ReportsView: View {
                         VStack(spacing: 8) {
                             HStack(spacing: 6) { Image(systemName: tabIcon(tab)).font(.system(size: 13)); Text(tab.rawValue).font(.system(size: 14, weight: selectedTab == tab ? .semibold : .medium)) }
                                 .foregroundColor(selectedTab == tab ? AppTheme.textPrimary : AppTheme.textSecondary).padding(.horizontal, 20).padding(.vertical, 8)
-                            Rectangle().fill(selectedTab == tab ? AppTheme.accent : Color.clear).frame(height: 2).scaleEffect(x: selectedTab == tab ? 1 : 0)
+                            Rectangle().fill(selectedTab == tab ? themeAccent : Color.clear).frame(height: 2).scaleEffect(x: selectedTab == tab ? 1 : 0)
                         }
                     }.buttonStyle(.plain)
                 }
@@ -64,7 +65,7 @@ struct ReportsView: View {
     private var summaryCard: some View {
         let f = filtered; let total = f.reduce(0) { $0 + $1.amount }; let count = f.count; let avg = count > 0 ? total / Double(count) : 0
         return HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "indianrupeesign.circle.fill").foregroundColor(AppTheme.accent); Text("Total Spending").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text(fmt(total)).font(.system(size: 36, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.accent).frame(maxHeight: .infinity)
+            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "indianrupeesign.circle.fill").foregroundColor(themeAccent); Text("Total Spending").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text(fmt(total)).font(.system(size: 36, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: themeAccent).frame(maxHeight: .infinity)
             VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "number.circle.fill").foregroundColor(AppTheme.accentSecondary); Text("Transactions").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text("\(count)").font(.system(size: 36, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.accentSecondary).frame(maxHeight: .infinity)
             VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "divide.circle.fill").foregroundColor(AppTheme.warning); Text("Avg / Transaction").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text(fmt(avg)).font(.system(size: 36, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.warning).frame(maxHeight: .infinity)
         }.fixedSize(horizontal: false, vertical: true)
@@ -78,11 +79,11 @@ struct ReportsView: View {
             if data.isEmpty { empty } else {
                 Chart(data, id: \.label) { item in
                     switch selectedTab {
-                    case .monthly: BarMark(x: .value("Day", item.label), y: .value("Amount", item.value)).foregroundStyle(AppTheme.accent).cornerRadius(4)
-                    case .quarterly: BarMark(x: .value("Month", item.label), y: .value("Amount", item.value)).foregroundStyle(AppTheme.accent).cornerRadius(6)
+                    case .monthly: BarMark(x: .value("Day", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent).cornerRadius(4)
+                    case .quarterly: BarMark(x: .value("Month", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent).cornerRadius(6)
                     case .yearly:
-                        LineMark(x: .value("Month", item.label), y: .value("Amount", item.value)).foregroundStyle(AppTheme.accent).lineStyle(StrokeStyle(lineWidth: 3)).interpolationMethod(.catmullRom).symbol { Circle().fill(AppTheme.accent).frame(width: 8, height: 8) }
-                        AreaMark(x: .value("Month", item.label), y: .value("Amount", item.value)).foregroundStyle(AppTheme.accent.opacity(0.12)).interpolationMethod(.catmullRom)
+                        LineMark(x: .value("Month", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent).lineStyle(StrokeStyle(lineWidth: 3)).interpolationMethod(.catmullRom).symbol { Circle().fill(themeAccent).frame(width: 8, height: 8) }
+                        AreaMark(x: .value("Month", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent.opacity(0.12)).interpolationMethod(.catmullRom)
                     }
                 }
                 .chartXAxis { AxisMarks { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.3)); AxisValueLabel().foregroundStyle(AppTheme.textSecondary) } }
