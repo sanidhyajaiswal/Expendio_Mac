@@ -24,46 +24,89 @@ enum SidebarItem: String, CaseIterable, Identifiable {
 struct ContentView: View {
     @State private var selectedItem: SidebarItem = .dashboard
     @State private var hoveredItem: SidebarItem?
+    @State private var showProfileSheet = false
     @Environment(\.modelContext) private var modelContext
-    @Query private var categories: [ExpenseCategory]
+    @Query private var profiles: [Profile]
+    @AppStorage("activeProfileId") private var activeProfileIdString: String = ""
+    
+    private var activeProfile: Profile? {
+        guard let uuid = UUID(uuidString: activeProfileIdString) else { return profiles.first }
+        return profiles.first { $0.id == uuid } ?? profiles.first
+    }
     
     var body: some View {
-        HStack(spacing: 0) {
-            // Sidebar
-            sidebar
-            
-            // Divider
-            Rectangle()
-                .fill(AppTheme.border.opacity(0.3))
-                .frame(width: 1)
-            
-            // Main Content
-            mainContent
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(AppTheme.background)
+        Group {
+            if let profile = activeProfile {
+                mainLayout(profileId: profile.id)
+            } else {
+                profileSetupView
+            }
         }
         .background(AppTheme.background)
         .onAppear {
-            seedDefaultCategories()
+            if profiles.isEmpty {
+                let defaultProfile = Profile(name: "Personal")
+                modelContext.insert(defaultProfile)
+                seedCategories(for: defaultProfile.id)
+                try? modelContext.save()
+                activeProfileIdString = defaultProfile.id.uuidString
+            } else if activeProfile == nil, let first = profiles.first {
+                activeProfileIdString = first.id.uuidString
+            }
+        }
+        .sheet(isPresented: $showProfileSheet) {
+            ProfileManagementView(activeProfileIdString: $activeProfileIdString)
+        }
+    }
+    
+    // MARK: - Profile Setup (first launch)
+    private var profileSetupView: some View {
+        VStack(spacing: 20) {
+            Image(systemName: "person.crop.circle.fill")
+                .font(.system(size: 56))
+                .foregroundColor(AppTheme.accent)
+            Text("Welcome to Expendio")
+                .font(.system(size: 24, weight: .bold, design: .rounded))
+                .foregroundColor(AppTheme.textPrimary)
+            Text("Setting up your profile...")
+                .font(.system(size: 14))
+                .foregroundColor(AppTheme.textSecondary)
+            ProgressView().tint(AppTheme.accent)
+        }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
+    }
+    
+    // MARK: - Main Layout
+    private func mainLayout(profileId: UUID) -> some View {
+        HStack(spacing: 0) {
+            sidebar(profileId: profileId)
+            Rectangle().fill(AppTheme.border.opacity(0.3)).frame(width: 1)
+            mainContent(profileId: profileId)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .background(AppTheme.background)
         }
     }
     
     // MARK: - Sidebar
-    private var sidebar: some View {
+    private func sidebar(profileId: UUID) -> some View {
         VStack(spacing: 0) {
+            // Profile Selector
+            profileSelector
+                .padding(.top, 16)
+                .padding(.horizontal, 12)
+            
+            Divider().overlay(AppTheme.border.opacity(0.3)).padding(.vertical, 12)
+            
             // Logo
             HStack(spacing: 10) {
                 Image(systemName: "indianrupeesign.circle.fill")
                     .font(.system(size: 28, weight: .bold))
-                    .foregroundStyle(AppTheme.accentGradient)
-                
+                    .foregroundColor(AppTheme.accent)
                 Text("Expendio")
                     .font(.system(size: 22, weight: .bold, design: .rounded))
                     .foregroundColor(AppTheme.textPrimary)
             }
-            .padding(.top, 20)
-            .padding(.bottom, 30)
-            .padding(.horizontal, 20)
+            .padding(.bottom, 24).padding(.horizontal, 20)
             
             // Menu Items
             VStack(spacing: 4) {
@@ -75,92 +118,213 @@ struct ContentView: View {
             
             Spacer()
             
-            // Footer
             VStack(spacing: 8) {
-                Divider()
-                    .overlay(AppTheme.border.opacity(0.3))
-                
+                Divider().overlay(AppTheme.border.opacity(0.3))
                 HStack {
-                    Image(systemName: "gearshape.fill")
-                        .font(.system(size: 13))
-                        .foregroundColor(AppTheme.textSecondary)
-                    
-                    Text("v1.0")
-                        .font(.system(size: 12))
-                        .foregroundColor(AppTheme.textMuted)
+                    Image(systemName: "gearshape.fill").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary)
+                    Text("v1.0").font(.system(size: 12)).foregroundColor(AppTheme.textMuted)
                 }
                 .padding(.bottom, 16)
             }
         }
         .frame(width: 220)
-        .background(
-            AppTheme.surface.opacity(0.5)
-        )
+        .background(AppTheme.surface.opacity(0.5))
+    }
+    
+    // MARK: - Profile Selector
+    private var profileSelector: some View {
+        Menu {
+            ForEach(profiles, id: \.id) { profile in
+                Button {
+                    activeProfileIdString = profile.id.uuidString
+                    selectedItem = .dashboard
+                } label: {
+                    HStack {
+                        Text(profile.name)
+                        if profile.id == activeProfile?.id {
+                            Image(systemName: "checkmark")
+                        }
+                    }
+                }
+            }
+            Divider()
+            Button("Manage Profiles...") { showProfileSheet = true }
+        } label: {
+            HStack(spacing: 10) {
+                ZStack {
+                    Circle()
+                        .fill(Color(hex: activeProfile?.colorHex ?? "#7C3AED").opacity(0.2))
+                        .frame(width: 34, height: 34)
+                    Text(String((activeProfile?.name ?? "P").prefix(1)).uppercased())
+                        .font(.system(size: 14, weight: .bold))
+                        .foregroundColor(Color(hex: activeProfile?.colorHex ?? "#7C3AED"))
+                }
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(activeProfile?.name ?? "Profile")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(AppTheme.textPrimary)
+                    Text("Switch profile")
+                        .font(.system(size: 10))
+                        .foregroundColor(AppTheme.textMuted)
+                }
+                Spacer()
+                Image(systemName: "chevron.up.chevron.down")
+                    .font(.system(size: 10))
+                    .foregroundColor(AppTheme.textMuted)
+            }
+            .padding(8)
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(AppTheme.surfaceElevated.opacity(0.5))
+                    .overlay(RoundedRectangle(cornerRadius: 10).stroke(AppTheme.border.opacity(0.3), lineWidth: 1))
+            )
+        }
+        .menuStyle(.borderlessButton)
     }
     
     private func sidebarButton(_ item: SidebarItem) -> some View {
         Button {
-            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) {
-                selectedItem = item
-            }
+            withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { selectedItem = item }
         } label: {
             HStack(spacing: 12) {
-                Image(systemName: item.icon)
-                    .font(.system(size: 15, weight: .medium))
-                    .frame(width: 24)
-                
-                Text(item.rawValue)
-                    .font(.system(size: 14, weight: selectedItem == item ? .semibold : .medium))
-                
+                Image(systemName: item.icon).font(.system(size: 15, weight: .medium)).frame(width: 24)
+                Text(item.rawValue).font(.system(size: 14, weight: selectedItem == item ? .semibold : .medium))
                 Spacer()
             }
             .foregroundColor(selectedItem == item ? .white : AppTheme.textSecondary)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 14).padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(selectedItem == item
-                          ? AppTheme.accentGradient
-                          : (hoveredItem == item
-                             ? LinearGradient(colors: [AppTheme.surfaceElevated], startPoint: .leading, endPoint: .trailing)
-                             : LinearGradient(colors: [Color.clear], startPoint: .leading, endPoint: .trailing))
-                    )
+                    .fill(selectedItem == item ? AppTheme.accent : (hoveredItem == item ? AppTheme.surfaceElevated : Color.clear))
                     .opacity(selectedItem == item ? 1 : 0.8)
             )
         }
         .buttonStyle(.plain)
-        .onHover { isHovered in
-            withAnimation(.easeInOut(duration: 0.15)) {
-                hoveredItem = isHovered ? item : nil
-            }
-        }
+        .onHover { h in withAnimation(.easeInOut(duration: 0.15)) { hoveredItem = h ? item : nil } }
     }
     
     // MARK: - Main Content
     @ViewBuilder
-    private var mainContent: some View {
+    private func mainContent(profileId: UUID) -> some View {
         switch selectedItem {
-        case .dashboard:
-            DashboardView()
-        case .expenses:
-            ExpenseListView()
-        case .reports:
-            ReportsView()
-        case .categories:
-            CategoryManagementView()
-        case .importCSV:
-            ImportView()
+        case .dashboard: DashboardView(profileId: profileId)
+        case .expenses: ExpenseListView(profileId: profileId)
+        case .reports: ReportsView(profileId: profileId)
+        case .categories: CategoryManagementView(profileId: profileId)
+        case .importCSV: ImportView(profileId: profileId)
         }
     }
     
-    // MARK: - Seed Default Categories
-    private func seedDefaultCategories() {
-        guard categories.isEmpty else { return }
-        
+    // MARK: - Seed Categories
+    private func seedCategories(for profileId: UUID) {
         for (name, icon, color) in ExpenseCategory.defaults {
-            let category = ExpenseCategory(name: name, icon: icon, colorHex: color)
+            let category = ExpenseCategory(name: name, icon: icon, colorHex: color, profileId: profileId)
             modelContext.insert(category)
         }
-        try? modelContext.save()
+    }
+}
+
+// MARK: - Profile Management Sheet
+struct ProfileManagementView: View {
+    @Binding var activeProfileIdString: String
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    @Query private var profiles: [Profile]
+    
+    @State private var newName = ""
+    @State private var newColor = "#7C3AED"
+    @State private var editingProfile: Profile?
+    
+    private let colors = ["#7C3AED", "#FF6B6B", "#4ECDC4", "#F59E0B", "#3B82F6", "#EC4899", "#10B981", "#F97316"]
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text("Manage Profiles").font(.system(size: 20, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+                Spacer()
+                Button("Done") { dismiss() }.font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.accent).buttonStyle(.plain)
+            }
+            .padding(20)
+            
+            Divider().overlay(AppTheme.border.opacity(0.3))
+            
+            ScrollView {
+                VStack(spacing: 12) {
+                    ForEach(profiles, id: \.id) { profile in
+                        profileRow(profile)
+                    }
+                    
+                    Divider().overlay(AppTheme.border.opacity(0.2)).padding(.vertical, 8)
+                    
+                    // Add new profile
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text("Add Profile").font(.system(size: 14, weight: .semibold)).foregroundColor(AppTheme.textSecondary)
+                        HStack(spacing: 10) {
+                            TextField("Profile name", text: $newName)
+                                .textFieldStyle(.plain).font(.system(size: 14)).foregroundColor(AppTheme.textPrimary)
+                                .padding(10)
+                                .background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.surfaceElevated)
+                                    .overlay(RoundedRectangle(cornerRadius: 8).stroke(AppTheme.border.opacity(0.5), lineWidth: 1)))
+                            
+                            ForEach(colors, id: \.self) { c in
+                                Button { newColor = c } label: {
+                                    Circle().fill(Color(hex: c)).frame(width: 22, height: 22)
+                                        .overlay(Circle().stroke(Color.white, lineWidth: newColor == c ? 2 : 0))
+                                }.buttonStyle(.plain)
+                            }
+                            
+                            Button {
+                                guard !newName.isEmpty else { return }
+                                let p = Profile(name: newName, colorHex: newColor)
+                                modelContext.insert(p)
+                                // Seed default categories for new profile
+                                for (name, icon, color) in ExpenseCategory.defaults {
+                                    modelContext.insert(ExpenseCategory(name: name, icon: icon, colorHex: color, profileId: p.id))
+                                }
+                                try? modelContext.save()
+                                newName = ""
+                            } label: {
+                                Image(systemName: "plus.circle.fill").font(.system(size: 24)).foregroundColor(AppTheme.accent)
+                            }.buttonStyle(.plain).disabled(newName.isEmpty)
+                        }
+                    }
+                }
+                .padding(20)
+            }
+        }
+        .frame(width: 560, height: 400).background(AppTheme.background)
+    }
+    
+    private func profileRow(_ profile: Profile) -> some View {
+        HStack(spacing: 12) {
+            Circle().fill(Color(hex: profile.colorHex).opacity(0.2)).frame(width: 36, height: 36)
+                .overlay(Text(String(profile.name.prefix(1)).uppercased()).font(.system(size: 14, weight: .bold)).foregroundColor(Color(hex: profile.colorHex)))
+            
+            Text(profile.name).font(.system(size: 14, weight: .medium)).foregroundColor(AppTheme.textPrimary)
+            
+            if UUID(uuidString: activeProfileIdString) == profile.id {
+                Text("Active").font(.system(size: 11, weight: .medium)).foregroundColor(AppTheme.accent)
+                    .padding(.horizontal, 8).padding(.vertical, 3)
+                    .background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.accent.opacity(0.15)))
+            }
+            
+            Spacer()
+            
+            if profiles.count > 1 {
+                Button {
+                    if UUID(uuidString: activeProfileIdString) == profile.id {
+                        if let other = profiles.first(where: { $0.id != profile.id }) {
+                            activeProfileIdString = other.id.uuidString
+                        }
+                    }
+                    modelContext.delete(profile); try? modelContext.save()
+                } label: {
+                    Image(systemName: "trash").font(.system(size: 12)).foregroundColor(AppTheme.danger)
+                }.buttonStyle(.plain)
+            }
+        }
+        .padding(12)
+        .background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.surface.opacity(0.5))
+            .overlay(RoundedRectangle(cornerRadius: 10).stroke(AppTheme.border.opacity(0.3), lineWidth: 1)))
     }
 }

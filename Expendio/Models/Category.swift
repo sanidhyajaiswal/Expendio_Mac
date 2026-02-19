@@ -8,15 +8,17 @@ final class ExpenseCategory {
     var name: String
     var icon: String
     var colorHex: String
+    var profileId: UUID
     
     @Relationship(deleteRule: .nullify, inverse: \Expense.category)
     var expenses: [Expense] = []
     
-    init(name: String, icon: String, colorHex: String) {
+    init(name: String, icon: String, colorHex: String, profileId: UUID = UUID()) {
         self.id = UUID()
         self.name = name
         self.icon = icon
         self.colorHex = colorHex
+        self.profileId = profileId
     }
     
     var color: Color {

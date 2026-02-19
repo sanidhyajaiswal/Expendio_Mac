@@ -123,7 +123,8 @@ class SplitwiseImporter {
     static func importExpenses(
         _ parsed: [ParsedExpense],
         into context: ModelContext,
-        categories: [ExpenseCategory]
+        categories: [ExpenseCategory],
+        profileId: UUID
     ) -> Int {
         var imported = 0
         
@@ -157,7 +158,8 @@ class SplitwiseImporter {
                 date: item.date,
                 category: matchedCategory,
                 currency: item.currency,
-                source: "splitwise"
+                source: "splitwise",
+                profileId: profileId
             )
             
             context.insert(expense)

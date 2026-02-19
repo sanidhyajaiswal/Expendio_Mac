@@ -20,6 +20,7 @@
 		FA000000000000000000010B /* CategoryManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000B; };
 		FA000000000000000000010C /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000C; };
 		FA000000000000000000010D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000D; };
+		FA000000000000000000010E /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000010; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -38,6 +39,7 @@
 		FA000000000000000000000D /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FA000000000000000000000E /* Expendio.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Expendio.entitlements; sourceTree = "<group>"; };
 		FA000000000000000000000F /* Expendio.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Expendio.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		FA0000000000000000000010 /* Profile.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Profile.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -78,6 +80,7 @@
 			children = (
 				FA0000000000000000000002 /* Expense.swift */,
 				FA0000000000000000000003 /* Category.swift */,
+				FA0000000000000000000010 /* Profile.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -241,6 +244,7 @@
 				FA000000000000000000010A /* ReportsView.swift in Sources */,
 				FA000000000000000000010B /* CategoryManagementView.swift in Sources */,
 				FA000000000000000000010C /* ImportView.swift in Sources */,
+				FA000000000000000000010E /* Profile.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

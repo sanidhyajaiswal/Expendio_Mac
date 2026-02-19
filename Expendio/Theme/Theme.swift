@@ -50,24 +50,7 @@ struct AppTheme {
     static let warning = Color(hex: "D29922")
     static let danger = Color(hex: "F85149")
     
-    // Gradients
-    static let accentGradient = LinearGradient(
-        colors: [Color(hex: "7C3AED"), Color(hex: "06B6D4")],
-        startPoint: .leading,
-        endPoint: .trailing
-    )
-    
-    static let subtleGradient = LinearGradient(
-        colors: [Color(hex: "7C3AED").opacity(0.15), Color(hex: "06B6D4").opacity(0.08)],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
-    
-    static let cardGradient = LinearGradient(
-        colors: [surface.opacity(0.9), surfaceElevated.opacity(0.6)],
-        startPoint: .topLeading,
-        endPoint: .bottomTrailing
-    )
+
     
     // Category chart colors
     static let chartColors: [Color] = [
@@ -109,9 +92,8 @@ struct GradientButton: ViewModifier {
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 10)
-                    .fill(AppTheme.accentGradient)
+                    .fill(AppTheme.accent)
             )
-            .shadow(color: AppTheme.accent.opacity(0.3), radius: 8, y: 4)
     }
 }
 

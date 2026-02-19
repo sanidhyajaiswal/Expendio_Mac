@@ -10,6 +10,7 @@ final class Expense {
     var currency: String
     var notes: String
     var source: String // "manual" or "splitwise"
+    var profileId: UUID
     
     var category: ExpenseCategory?
     
@@ -20,11 +21,13 @@ final class Expense {
         category: ExpenseCategory? = nil,
         currency: String = "INR",
         notes: String = "",
-        source: String = "manual"
+        source: String = "manual",
+        profileId: UUID = UUID()
     ) {
         self.id = UUID()
         self.title = title
         self.amount = amount
+        self.profileId = profileId
         self.date = date
         self.category = category
         self.currency = currency

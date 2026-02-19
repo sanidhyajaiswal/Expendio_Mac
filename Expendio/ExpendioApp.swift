@@ -10,7 +10,7 @@ struct ExpendioApp: App {
                 .preferredColorScheme(.dark)
                 .background(AppTheme.background)
         }
-        .modelContainer(for: [Expense.self, ExpenseCategory.self])
+        .modelContainer(for: [Expense.self, ExpenseCategory.self, Profile.self])
         .windowStyle(.hiddenTitleBar)
         .defaultSize(width: 1300, height: 850)
     }
