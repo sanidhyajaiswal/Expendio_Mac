@@ -53,13 +53,14 @@ struct DashboardView: View {
                 recentExpensesSection
             }
             .padding(32)
+            .frame(maxWidth: .infinity) // Ensures responsiveness inside ScrollView
         }
-        .background(AppTheme.background)
+        .background(AppTheme.dynamicBackground)
     }
     
     private var headerSection: some View {
         VStack(alignment: .leading, spacing: 6) {
-            Text("Dashboard").font(.system(size: 28, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+            Text("Dashboard").font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary)
             Text(Date(), format: .dateTime.month(.wide).day().year()).font(.system(size: 14)).foregroundColor(AppTheme.textSecondary)
         }
     }
@@ -68,18 +69,18 @@ struct DashboardView: View {
         HStack(spacing: 16) {
             VStack(alignment: .leading, spacing: 10) {
                 HStack { Image(systemName: "indianrupeesign.circle.fill").foregroundColor(themeAccent); Text("This Month").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium))
-                Text(fmt(totalThisMonth)).font(.system(size: 32, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+                Text(fmt(totalThisMonth)).font(.system(size: 32, weight: .bold)).foregroundColor(AppTheme.textPrimary)
             }.statCard(accent: themeAccent).frame(maxHeight: .infinity)
             
             VStack(alignment: .leading, spacing: 10) {
                 HStack { Image(systemName: "chart.line.uptrend.xyaxis").foregroundColor(AppTheme.accentSecondary); Text("Daily Average").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium))
-                Text(fmt(dailyAverage)).font(.system(size: 32, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+                Text(fmt(dailyAverage)).font(.system(size: 32, weight: .bold)).foregroundColor(AppTheme.textPrimary)
             }.statCard(accent: AppTheme.accentSecondary).frame(maxHeight: .infinity)
             
             VStack(alignment: .leading, spacing: 10) {
                 HStack { Image(systemName: "flame.fill").foregroundColor(AppTheme.warning); Text("Top Category").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium))
                 HStack(alignment: .firstTextBaseline) {
-                    Text(topCategory?.0 ?? "—").font(.system(size: 32, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary).lineLimit(1).minimumScaleFactor(0.5)
+                    Text(topCategory?.0 ?? "—").font(.system(size: 32, weight: .bold)).foregroundColor(AppTheme.textPrimary).lineLimit(1).minimumScaleFactor(0.5)
                     Spacer()
                     if let top = topCategory { Text(fmt(top.1)).font(.system(size: 14, weight: .semibold)).foregroundColor(AppTheme.textSecondary) }
                 }
@@ -87,9 +88,10 @@ struct DashboardView: View {
             
             VStack(alignment: .leading, spacing: 10) {
                 HStack { Image(systemName: "number.circle.fill").foregroundColor(AppTheme.success); Text("Transactions").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium))
-                Text("\(currentMonthExpenses.count)").font(.system(size: 32, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+                Text("\(currentMonthExpenses.count)").font(.system(size: 32, weight: .bold)).foregroundColor(AppTheme.textPrimary)
             }.statCard(accent: AppTheme.success).frame(maxHeight: .infinity)
-        }.fixedSize(horizontal: false, vertical: true)
+        }.frame(maxWidth: .infinity) // Added to allow horizontal stretch
+        .fixedSize(horizontal: false, vertical: true)
     }
     
     private var spendingTrendChart: some View {
@@ -129,7 +131,7 @@ struct DashboardView: View {
                     }
                 }
             } else { emptyChart }
-        }.glassCard().frame(width: 300).frame(maxHeight: .infinity)
+        }.glassCard().frame(width: 250).frame(maxHeight: .infinity) // Make width more responsive
     }
     
     private var recentExpensesSection: some View {

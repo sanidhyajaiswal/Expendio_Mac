@@ -29,7 +29,7 @@ struct AddExpenseView: View {
             VStack(spacing: 10) {
                 Image(systemName: "plus.circle.fill").font(.system(size: 36)).foregroundColor(themeAccent)
                     .scaleEffect(isAnimating ? 1.0 : 0.8).animation(.spring(response: 0.5, dampingFraction: 0.6), value: isAnimating)
-                Text("New Expense").font(.system(size: 20, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+                Text("New Expense").font(.system(size: 20, weight: .bold)).foregroundColor(AppTheme.textPrimary)
             }.frame(maxWidth: .infinity).padding(.vertical, 24).background(themeAccent.opacity(0.08))
             
             ScrollView {
@@ -47,17 +47,17 @@ struct AddExpenseView: View {
             
             Divider().overlay(AppTheme.border.opacity(0.3))
             HStack(spacing: 12) {
-                Button("Cancel") { dismiss() }.font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.textSecondary).padding(.horizontal, 20).padding(.vertical, 10).background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.surfaceElevated)).buttonStyle(.plain)
+                Button("Cancel") { dismiss() }.font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.textSecondary).padding(.horizontal, 20).padding(.vertical, 10).background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.dynamicSurfaceElevated)).buttonStyle(.plain)
                 Spacer()
                 Button { saveExpense() } label: { HStack(spacing: 6) { Image(systemName: "checkmark"); Text("Save Expense") }.gradientButton() }.buttonStyle(.plain).disabled(title.isEmpty || amount.isEmpty).opacity(title.isEmpty || amount.isEmpty ? 0.5 : 1.0)
             }.padding(20)
-        }.frame(width: 500, height: 580).background(AppTheme.background).onAppear { isAnimating = true }
+        }.frame(width: 500, height: 580).background(AppTheme.dynamicBackground).onAppear { isAnimating = true }
     }
     
     private func formField<Content: View>(label: String, icon: String, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
             HStack(spacing: 6) { Image(systemName: icon).font(.system(size: 12)).foregroundColor(themeAccent); Text(label).font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textSecondary) }
-            content().padding(.horizontal, 12).padding(.vertical, 10).background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.surfaceElevated).overlay(RoundedRectangle(cornerRadius: 10).stroke(AppTheme.border.opacity(0.5), lineWidth: 1)))
+            content().padding(.horizontal, 12).padding(.vertical, 10).background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.dynamicSurfaceElevated).overlay(RoundedRectangle(cornerRadius: 10).stroke(AppTheme.dynamicBorder, lineWidth: 1)))
         }
     }
     

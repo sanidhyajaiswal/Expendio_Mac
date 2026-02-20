@@ -23,7 +23,7 @@ struct ReportsView: View {
         VStack(spacing: 0) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Reports").font(.system(size: 28, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+                    Text("Reports").font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary)
                     Text("Analyze your spending patterns").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary)
                 }; Spacer()
             }.padding(.horizontal, 32).padding(.top, 28).padding(.bottom, 16)
@@ -46,29 +46,29 @@ struct ReportsView: View {
                     periodNavigator; summaryCard
                     HStack(alignment: .top, spacing: 20) { mainChart; categoryPieChart }.fixedSize(horizontal: false, vertical: true)
                     categoryTable
-                }.padding(32)
+                }.padding(32).frame(maxWidth: .infinity)
             }
-        }.background(AppTheme.background)
+        }.background(AppTheme.dynamicBackground)
     }
     
     // MARK: - Period Nav
     private var periodNavigator: some View {
         HStack {
-            Button { nav(-1) } label: { Image(systemName: "chevron.left").font(.system(size: 14, weight: .semibold)).foregroundColor(AppTheme.textSecondary).frame(width: 32, height: 32).background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.surfaceElevated)) }.buttonStyle(.plain)
+            Button { nav(-1) } label: { Image(systemName: "chevron.left").font(.system(size: 14, weight: .semibold)).foregroundColor(AppTheme.textSecondary).frame(width: 32, height: 32).background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.dynamicSurfaceElevated)) }.buttonStyle(.plain)
             Spacer()
-            Text(periodTitle).font(.system(size: 18, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+            Text(periodTitle).font(.system(size: 18, weight: .bold)).foregroundColor(AppTheme.textPrimary)
             Spacer()
-            Button { nav(1) } label: { Image(systemName: "chevron.right").font(.system(size: 14, weight: .semibold)).foregroundColor(AppTheme.textSecondary).frame(width: 32, height: 32).background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.surfaceElevated)) }.buttonStyle(.plain)
+            Button { nav(1) } label: { Image(systemName: "chevron.right").font(.system(size: 14, weight: .semibold)).foregroundColor(AppTheme.textSecondary).frame(width: 32, height: 32).background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.dynamicSurfaceElevated)) }.buttonStyle(.plain)
         }
     }
     
     private var summaryCard: some View {
         let f = filtered; let total = f.reduce(0) { $0 + $1.amount }; let count = f.count; let avg = count > 0 ? total / Double(count) : 0
         return HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "indianrupeesign.circle.fill").foregroundColor(themeAccent); Text("Total Spending").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text(fmt(total)).font(.system(size: 36, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: themeAccent).frame(maxHeight: .infinity)
-            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "number.circle.fill").foregroundColor(AppTheme.accentSecondary); Text("Transactions").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text("\(count)").font(.system(size: 36, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.accentSecondary).frame(maxHeight: .infinity)
-            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "divide.circle.fill").foregroundColor(AppTheme.warning); Text("Avg / Transaction").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text(fmt(avg)).font(.system(size: 36, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.warning).frame(maxHeight: .infinity)
-        }.fixedSize(horizontal: false, vertical: true)
+            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "indianrupeesign.circle.fill").foregroundColor(themeAccent); Text("Total Spending").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text(fmt(total)).font(.system(size: 36, weight: .bold)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: themeAccent).frame(maxHeight: .infinity)
+            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "number.circle.fill").foregroundColor(AppTheme.accentSecondary); Text("Transactions").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text("\(count)").font(.system(size: 36, weight: .bold)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.accentSecondary).frame(maxHeight: .infinity)
+            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "divide.circle.fill").foregroundColor(AppTheme.warning); Text("Avg / Transaction").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text(fmt(avg)).font(.system(size: 36, weight: .bold)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.warning).frame(maxHeight: .infinity)
+        }.frame(maxWidth: .infinity).fixedSize(horizontal: false, vertical: true)
     }
     
     // MARK: - Charts

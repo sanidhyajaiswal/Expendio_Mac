@@ -38,7 +38,7 @@ struct CategoryManagementView: View {
         VStack(spacing: 0) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Categories").font(.system(size: 28, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+                    Text("Categories").font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary)
                     Text("\(categories.count) categories").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary)
                 }
                 Spacer()
@@ -50,10 +50,10 @@ struct CategoryManagementView: View {
             ScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 240, maximum: 300), spacing: 16)], spacing: 16) {
                     ForEach(categories, id: \.id) { cat in categoryCard(cat) }
-                }.padding(.horizontal, 32).padding(.bottom, 32)
+                }.padding(.horizontal, 32).padding(.bottom, 32).frame(maxWidth: .infinity)
             }
         }
-        .background(AppTheme.background)
+        .background(AppTheme.dynamicBackground)
         .sheet(isPresented: $showAddForm) { categoryForm(editing: nil) }
         .sheet(item: $editingCategory) { cat in
             categoryForm(editing: cat).onAppear { formName = cat.name; formIcon = cat.icon; formColor = cat.colorHex }
@@ -85,7 +85,7 @@ struct CategoryManagementView: View {
         VStack(spacing: 0) {
             VStack(spacing: 10) {
                 ZStack { RoundedRectangle(cornerRadius: 16).fill(Color(hex: formColor).opacity(0.15)).frame(width: 60, height: 60); Image(systemName: formIcon).font(.system(size: 28)).foregroundColor(Color(hex: formColor)) }
-                Text(editing != nil ? "Edit Category" : "New Category").font(.system(size: 20, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+                Text(editing != nil ? "Edit Category" : "New Category").font(.system(size: 20, weight: .bold)).foregroundColor(AppTheme.textPrimary)
             }.frame(maxWidth: .infinity).padding(.vertical, 24).background(themeAccent.opacity(0.08))
             
             VStack(spacing: 20) {

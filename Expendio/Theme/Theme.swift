@@ -29,35 +29,39 @@ extension Color {
 
 // MARK: - App Theme
 struct AppTheme {
-    // Backgrounds
-    static let background = Color(hex: "0D1117")
-    static let surface = Color(hex: "161B22")
-    static let surfaceElevated = Color(hex: "21262D")
-    static let border = Color(hex: "30363D")
+    // Backgrounds - Notion uses pure white for light, very dark gray for dark
+    static let background = Color("BackgroundColor") // Need to define in Assets or fallback properly, but let's use dynamic color
+    static let surface = Color("SurfaceColor")
+    static let surfaceElevated = Color("SurfaceElevatedColor")
+    static let border = Color(hex: "E0E0E0") // Light border, we'll fake dynamic locally if needed, but for now flat is fine or systemGray
+    
+    // We can use standard semantic system colors for dynamic light/dark
+    static var dynamicBackground: Color { Color(NSColor.windowBackgroundColor) }
+    static var dynamicSurface: Color { Color(NSColor.controlBackgroundColor) }
+    static var dynamicSurfaceElevated: Color { Color(NSColor.alternatingContentBackgroundColors.first ?? .darkGray) }
+    static var dynamicBorder: Color { Color(NSColor.separatorColor) }
     
     // Accents
-    static let accent = Color(hex: "7C3AED")
+    static let accent = Color(hex: "7C3AED") // Let's keep the user's primary choices
     static let accentSecondary = Color(hex: "06B6D4")
     static let accentTertiary = Color(hex: "8B5CF6")
     
     // Text
-    static let textPrimary = Color.white
-    static let textSecondary = Color(hex: "8B949E")
-    static let textMuted = Color(hex: "484F58")
+    static let textPrimary = Color(NSColor.labelColor)
+    static let textSecondary = Color(NSColor.secondaryLabelColor)
+    static let textMuted = Color(NSColor.tertiaryLabelColor)
     
     // Semantic
-    static let success = Color(hex: "3FB950")
-    static let warning = Color(hex: "D29922")
-    static let danger = Color(hex: "F85149")
+    static let success = Color(NSColor.systemGreen)
+    static let warning = Color(NSColor.systemYellow)
+    static let danger = Color(NSColor.systemRed)
     
-
-    
-    // Category chart colors
+    // Category chart colors (Flatter, slightly muted like Notion)
     static let chartColors: [Color] = [
-        Color(hex: "FF6B6B"), Color(hex: "4ECDC4"), Color(hex: "A78BFA"),
-        Color(hex: "F59E0B"), Color(hex: "3B82F6"), Color(hex: "EC4899"),
-        Color(hex: "8B5CF6"), Color(hex: "10B981"), Color(hex: "F97316"),
-        Color(hex: "6366F1"), Color(hex: "14B8A6"), Color(hex: "6B7280"),
+        Color(hex: "E05252"), Color(hex: "0BA376"), Color(hex: "8B5CF6"),
+        Color(hex: "E59500"), Color(hex: "2563EB"), Color(hex: "D946EF"),
+        Color(hex: "7C3AED"), Color(hex: "059669"), Color(hex: "EA580C"),
+        Color(hex: "4F46E5"), Color(hex: "0D9488"), Color(hex: "4B5563"),
     ]
 }
 
@@ -80,17 +84,14 @@ struct GlassCard: ViewModifier {
     func body(content: Content) -> some View {
         content
             .padding(padding)
+            .frame(maxWidth: .infinity, alignment: .leading) // Ensure flexibility
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(AppTheme.surface.opacity(0.7))
-                    .background(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(.ultraThinMaterial)
-                    )
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(AppTheme.dynamicSurface)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(AppTheme.border.opacity(0.5), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(AppTheme.dynamicBorder, lineWidth: 1)
             )
     }
 }
@@ -99,12 +100,12 @@ struct GradientButton: ViewModifier {
     @Environment(\.themeAccent) private var accent
     func body(content: Content) -> some View {
         content
-            .font(.system(size: 13, weight: .semibold))
+            .font(.system(size: 13, weight: .medium))
             .foregroundColor(.white)
-            .padding(.horizontal, 20)
-            .padding(.vertical, 10)
+            .padding(.horizontal, 16)
+            .padding(.vertical, 8)
             .background(
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: 6)
                     .fill(accent)
             )
     }
@@ -115,25 +116,15 @@ struct StatCard: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .padding(20)
-            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(16)
+            .frame(maxWidth: .infinity, alignment: .leading) // Ensure flexibility
             .background(
-                RoundedRectangle(cornerRadius: 16)
-                    .fill(AppTheme.surface.opacity(0.7))
-                    .overlay(
-                        RoundedRectangle(cornerRadius: 16)
-                            .fill(
-                                LinearGradient(
-                                    colors: [accentColor.opacity(0.08), Color.clear],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                    )
+                RoundedRectangle(cornerRadius: 8)
+                    .fill(AppTheme.dynamicSurface)
             )
             .overlay(
-                RoundedRectangle(cornerRadius: 16)
-                    .stroke(accentColor.opacity(0.2), lineWidth: 1)
+                RoundedRectangle(cornerRadius: 8)
+                    .stroke(AppTheme.dynamicBorder, lineWidth: 1)
             )
     }
 }

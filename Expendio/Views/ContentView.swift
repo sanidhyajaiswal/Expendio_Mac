@@ -73,8 +73,9 @@ struct ContentView: View {
                     Image(systemName: "indianrupeesign.circle.fill")
                         .font(.system(size: 56, weight: .bold))
                         .foregroundColor(Color(hex: setupColor))
-                    Text("Welcome to Expendio")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .shadow(color: Color(hex: setupColor).opacity(0.3), radius: 12)
+                    Text("Setup Profile")
+                        .font(.system(size: 28, weight: .bold))
                         .foregroundColor(AppTheme.textPrimary)
                     Text("Let's set up your profile to get started")
                         .font(.system(size: 15))
@@ -173,13 +174,15 @@ struct ContentView: View {
                 // Logo
                 HStack(spacing: 10) {
                     Image(systemName: "indianrupeesign.circle.fill")
-                        .font(.system(size: 26, weight: .bold))
+                        .font(.system(size: 24, weight: .bold))
                         .foregroundColor(themeAccent)
+                    
                     Text("Expendio")
-                        .font(.system(size: 20, weight: .bold, design: .rounded))
+                        .font(.system(size: 20, weight: .bold))
                         .foregroundColor(AppTheme.textPrimary)
                 }
-                .padding(.horizontal, 20).padding(.top, 20).padding(.bottom, 20)
+                .padding(.top, 32)
+                .padding(.bottom, 40)
 
                 // Menu Items
                 VStack(spacing: 4) {
@@ -503,7 +506,7 @@ struct ProfileManagementView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                Text("Manage Profiles").font(.system(size: 20, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+                Text("Manage Profiles").font(.system(size: 20, weight: .bold)).foregroundColor(AppTheme.textPrimary)
                 Spacer()
                 Button("Done") { dismiss() }.font(.system(size: 13, weight: .medium)).foregroundColor(themeAccent).buttonStyle(.plain)
             }
@@ -607,7 +610,7 @@ struct ProfileDialogSheet: View {
             // Header
             HStack {
                 Text(title)
-                    .font(.system(size: 18, weight: .bold, design: .rounded))
+                    .font(.system(size: 18, weight: .bold))
                     .foregroundColor(AppTheme.textPrimary)
                 Spacer()
                 Button { onCancel() } label: {

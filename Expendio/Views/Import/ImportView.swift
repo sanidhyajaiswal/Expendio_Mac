@@ -28,7 +28,7 @@ struct ImportView: View {
         VStack(spacing: 0) {
             HStack {
                 VStack(alignment: .leading, spacing: 4) {
-                    Text("Import").font(.system(size: 28, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+                    Text("Import").font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary)
                     Text("Import expenses from Splitwise CSV").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary)
                 }; Spacer()
             }.padding(.horizontal, 32).padding(.top, 28).padding(.bottom, 24)
@@ -39,9 +39,9 @@ struct ImportView: View {
                     if let err = errorMessage { errorBanner(err) }
                     if importStatus == .previewing { previewSection }
                     if importStatus == .done { successBanner }
-                }.padding(.horizontal, 32).padding(.bottom, 32)
+                }.padding(.horizontal, 32).padding(.bottom, 32).frame(maxWidth: .infinity)
             }
-        }.background(AppTheme.background)
+        }.background(AppTheme.dynamicBackground)
     }
     
     private var dropZone: some View {
@@ -85,7 +85,7 @@ struct ImportView: View {
     private var successBanner: some View {
         VStack(spacing: 16) {
             Image(systemName: "checkmark.circle.fill").font(.system(size: 48)).foregroundColor(AppTheme.success)
-            Text("Import Complete!").font(.system(size: 20, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+            Text("Import Complete!").font(.system(size: 20, weight: .bold)).foregroundColor(AppTheme.textPrimary)
             Text("\(importedCount) expenses imported successfully").font(.system(size: 14)).foregroundColor(AppTheme.textSecondary)
             Button { importStatus = .idle; parsedExpenses = []; importedCount = 0 } label: { Text("Import More").gradientButton() }.buttonStyle(.plain).padding(.top, 8)
         }.frame(maxWidth: .infinity).padding(.vertical, 60).glassCard()

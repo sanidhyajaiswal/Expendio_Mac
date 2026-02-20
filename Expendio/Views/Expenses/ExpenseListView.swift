@@ -53,7 +53,7 @@ struct ExpenseListView: View {
             filterBar
             if filteredExpenses.isEmpty { emptyState } else { expenseTable }
         }
-        .background(AppTheme.background)
+        .background(AppTheme.dynamicBackground)
         .sheet(isPresented: $showAddSheet) { AddExpenseView(profileId: profileId) }
         .confirmationDialog(
             "Delete \(selectedIds.count) expense\(selectedIds.count == 1 ? "" : "s")?",
@@ -77,7 +77,7 @@ struct ExpenseListView: View {
     private var headerBar: some View {
         HStack(spacing: 12) {
             VStack(alignment: .leading, spacing: 4) {
-                Text("Expenses").font(.system(size: 28, weight: .bold, design: .rounded)).foregroundColor(AppTheme.textPrimary)
+                Text("Expenses").font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary)
                 Text("\(filteredExpenses.count) expense\(filteredExpenses.count == 1 ? "" : "s")").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary)
             }
             Spacer()
@@ -228,13 +228,13 @@ struct ExpenseListView: View {
                 Text("CATEGORY").frame(width: 160, alignment: .leading)
                 Text("AMOUNT").frame(width: 120, alignment: .trailing)
                 Text("NOTES").frame(width: 150, alignment: .leading).padding(.leading, 16)
-                if !isSelectMode { Text("").frame(width: 80) }
             }
-            .font(.system(size: 11, weight: .semibold)).foregroundColor(AppTheme.textMuted)
-            .padding(.horizontal, 20).padding(.vertical, 10)
-            .background(AppTheme.surface.opacity(0.5))
+            .font(.system(size: 11, weight: .bold)) // Stronger header font like Notion
+            .foregroundColor(AppTheme.textMuted)
+            .padding(.horizontal, 20).padding(.vertical, 12)
+            .background(AppTheme.dynamicSurface)
 
-            Divider().overlay(AppTheme.border.opacity(0.3))
+            Divider().overlay(AppTheme.dynamicBorder)
 
             ScrollView {
                 LazyVStack(spacing: 0) {
@@ -275,12 +275,12 @@ struct ExpenseListView: View {
             HStack(spacing: 6) {
                 if let cat = expense.category { Circle().fill(cat.color).frame(width: 8, height: 8); Text(cat.name).lineLimit(1) }
                 else { Text("Uncategorized") }
-            }.font(.system(size: 13)).foregroundColor(AppTheme.textSecondary).frame(width: 160, alignment: .leading)
-            Text(expense.formattedAmount).font(.system(size: 13, weight: .semibold, design: .rounded)).foregroundColor(AppTheme.danger).frame(width: 120, alignment: .trailing)
+            }
+            Text(expense.formattedAmount).font(.system(size: 13, weight: .semibold)).foregroundColor(AppTheme.danger).frame(width: 120, alignment: .trailing)
             Text(expense.notes.isEmpty ? "—" : expense.notes).font(.system(size: 12)).foregroundColor(AppTheme.textMuted).lineLimit(1).frame(width: 150, alignment: .leading).padding(.leading, 16)
         }
-        .padding(.horizontal, 20).padding(.vertical, 10)
-        .background(isSelected ? themeAccent.opacity(0.08) : (hoveredExpenseId == expense.id ? AppTheme.surfaceElevated.opacity(0.4) : Color.clear))
+        .padding(.horizontal, 20).padding(.vertical, 12)
+        .background(isSelected ? themeAccent.opacity(0.08) : (hoveredExpenseId == expense.id ? AppTheme.dynamicSurfaceElevated : Color.clear))
         .contentShape(Rectangle())
         .onTapGesture {
             withAnimation(.easeInOut(duration: 0.12)) {
@@ -302,8 +302,8 @@ struct ExpenseListView: View {
             HStack(spacing: 6) {
                 if let cat = expense.category { Circle().fill(cat.color).frame(width: 8, height: 8); Text(cat.name).lineLimit(1) }
                 else { Text("Uncategorized") }
-            }.font(.system(size: 13)).foregroundColor(AppTheme.textSecondary).frame(width: 160, alignment: .leading)
-            Text(expense.formattedAmount).font(.system(size: 13, weight: .semibold, design: .rounded)).foregroundColor(AppTheme.danger).frame(width: 120, alignment: .trailing)
+            }
+            Text(expense.formattedAmount).font(.system(size: 13, weight: .semibold)).foregroundColor(AppTheme.danger).frame(width: 120, alignment: .trailing)
             Text(expense.notes.isEmpty ? "—" : expense.notes).font(.system(size: 12)).foregroundColor(AppTheme.textMuted).lineLimit(1).frame(width: 150, alignment: .leading).padding(.leading, 16)
             HStack(spacing: 8) {
                 Button { startEditing(expense) } label: {
@@ -316,8 +316,8 @@ struct ExpenseListView: View {
                 }.buttonStyle(.plain).opacity(hoveredExpenseId == expense.id ? 1 : 0)
             }.frame(width: 80)
         }
-        .padding(.horizontal, 20).padding(.vertical, 10)
-        .background(hoveredExpenseId == expense.id ? AppTheme.surfaceElevated.opacity(0.4) : Color.clear)
+        .padding(.horizontal, 20).padding(.vertical, 12)
+        .background(hoveredExpenseId == expense.id ? AppTheme.dynamicSurfaceElevated : Color.clear)
         .onHover { h in withAnimation(.easeInOut(duration: 0.1)) { hoveredExpenseId = h ? expense.id : nil } }
     }
 
@@ -325,13 +325,13 @@ struct ExpenseListView: View {
     private func editingRow(_ expense: Expense) -> some View {
         HStack(spacing: 0) {
             DatePicker("", selection: $editDate, displayedComponents: .date).labelsHidden().datePickerStyle(.field).frame(width: 110, alignment: .leading)
-            TextField("Title", text: $editTitle).textFieldStyle(.plain).font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.textPrimary).padding(.horizontal, 8).padding(.vertical, 4).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.surfaceElevated)).frame(maxWidth: .infinity, alignment: .leading)
+            TextField("Title", text: $editTitle).textFieldStyle(.plain).font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.textPrimary).padding(.horizontal, 8).padding(.vertical, 4).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.dynamicSurfaceElevated)).frame(maxWidth: .infinity, alignment: .leading)
             Picker("", selection: $editCategory) {
                 Text("None").tag(nil as ExpenseCategory?)
                 ForEach(categories, id: \.id) { cat in Label(cat.name, systemImage: cat.icon).tag(cat as ExpenseCategory?) }
             }.labelsHidden().frame(width: 160)
-            TextField("0", text: $editAmount).textFieldStyle(.plain).font(.system(size: 13, weight: .semibold, design: .rounded)).foregroundColor(AppTheme.danger).multilineTextAlignment(.trailing).padding(.horizontal, 8).padding(.vertical, 4).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.surfaceElevated)).frame(width: 120)
-            TextField("Notes", text: $editNotes).textFieldStyle(.plain).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary).padding(.horizontal, 8).padding(.vertical, 4).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.surfaceElevated)).frame(width: 150).padding(.leading, 16)
+            TextField("0", text: $editAmount).textFieldStyle(.plain).font(.system(size: 13, weight: .semibold)).foregroundColor(AppTheme.danger).multilineTextAlignment(.trailing).padding(.horizontal, 8).padding(.vertical, 4).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.dynamicSurfaceElevated)).frame(width: 120)
+            TextField("Notes", text: $editNotes).textFieldStyle(.plain).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary).padding(.horizontal, 8).padding(.vertical, 4).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.dynamicSurfaceElevated)).frame(width: 150).padding(.leading, 16)
             HStack(spacing: 6) {
                 Button { saveEdit(expense) } label: { Image(systemName: "checkmark").font(.system(size: 12, weight: .bold)).foregroundColor(AppTheme.success).frame(width: 28, height: 28).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.success.opacity(0.15))) }.buttonStyle(.plain)
                 Button { editingExpenseId = nil } label: { Image(systemName: "xmark").font(.system(size: 12, weight: .bold)).foregroundColor(AppTheme.danger).frame(width: 28, height: 28).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.danger.opacity(0.15))) }.buttonStyle(.plain)
