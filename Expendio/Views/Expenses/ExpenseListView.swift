@@ -82,36 +82,48 @@ struct ExpenseListView: View {
             }
             Spacer()
 
-            // Select / Cancel
+            // Select / Cancel Button
             Button {
                 withAnimation(.easeInOut(duration: 0.2)) {
                     isSelectMode.toggle()
                     if !isSelectMode { selectedIds.removeAll() }
                 }
             } label: {
-                Text(isSelectMode ? "Cancel" : "Select")
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(isSelectMode ? AppTheme.danger : AppTheme.textSecondary)
-                    .padding(.horizontal, 14).padding(.vertical, 8)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.surfaceElevated))
-            }.buttonStyle(.plain)
-
-            // Delete All menu
-            Menu {
-                Button(role: .destructive) { showDeleteAllConfirm = true } label: {
-                    Label("Delete All Expenses", systemImage: "trash")
+                HStack(spacing: 4) {
+                    Image(systemName: isSelectMode ? "xmark" : "checkmark.circle")
+                    Text(isSelectMode ? "Cancel" : "Select")
                 }
-            } label: {
-                Image(systemName: "ellipsis.circle")
-                    .font(.system(size: 18))
-                    .foregroundColor(AppTheme.textSecondary)
-                    .frame(width: 36, height: 36)
-                    .background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.surfaceElevated))
-            }.menuStyle(.borderlessButton).frame(width: 36)
-
-            Button { showAddSheet = true } label: {
-                HStack(spacing: 6) { Image(systemName: "plus"); Text("Add Expense") }.gradientButton()
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white)
+                .padding(.horizontal, 12).padding(.vertical, 6)
+                .background(RoundedRectangle(cornerRadius: 6).fill(isSelectMode ? AppTheme.textSecondary : Color.blue))
             }.buttonStyle(.plain)
+
+            // Add Expense Button
+            Button { showAddSheet = true } label: {
+                HStack(spacing: 4) { 
+                    Image(systemName: "plus")
+                    Text("Add") 
+                }
+                .font(.system(size: 12, weight: .medium))
+                .foregroundColor(.white)
+                .padding(.horizontal, 12).padding(.vertical, 6)
+                .background(RoundedRectangle(cornerRadius: 6).fill(themeAccent))
+            }.buttonStyle(.plain)
+
+            // Delete All Button
+            if !filteredExpenses.isEmpty {
+                Button { showDeleteAllConfirm = true } label: {
+                    HStack(spacing: 4) {
+                        Image(systemName: "trash")
+                        Text("Delete All")
+                    }
+                    .font(.system(size: 12, weight: .medium))
+                    .foregroundColor(.white)
+                    .padding(.horizontal, 12).padding(.vertical, 6)
+                    .background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.danger))
+                }.buttonStyle(.plain)
+            }
         }.padding(.horizontal, 32).padding(.top, 28).padding(.bottom, 12)
     }
 
