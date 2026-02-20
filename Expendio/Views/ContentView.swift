@@ -161,7 +161,7 @@ struct ContentView: View {
                 profilePanel
                     .fixedSize()
                     .offset(x: 221, y: 0)
-                    .transition(.opacity.combined(with: .scale(scale: 0.95, anchor: .bottomLeading)))
+                    .transition(.opacity)
             }
         }
     }
@@ -202,7 +202,7 @@ struct ContentView: View {
                 VStack(spacing: 0) {
                     Spacer()
                     profileSwitcherOverlay
-                        .transition(.move(edge: .bottom).combined(with: .opacity))
+                        .transition(.opacity)
                 }
                 .padding(.bottom, 60) // offset above the profile card
             }
@@ -352,9 +352,8 @@ struct ContentView: View {
         .padding(.vertical, 6).padding(.horizontal, 4)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(AppTheme.background)
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(AppTheme.border.opacity(0.5), lineWidth: 1))
-                .shadow(color: .black.opacity(0.4), radius: 8, y: -2)
+                .fill(AppTheme.dynamicSurfaceElevated)
+                .shadow(color: .black.opacity(0.15), radius: 6, y: 2)
         )
     }
 
@@ -402,9 +401,8 @@ struct ContentView: View {
         .padding(.vertical, 6).padding(.horizontal, 4)
         .background(
             RoundedRectangle(cornerRadius: 8)
-                .fill(AppTheme.background)
-                .overlay(RoundedRectangle(cornerRadius: 8).stroke(AppTheme.border.opacity(0.5), lineWidth: 1))
-                .shadow(color: .black.opacity(0.4), radius: 8, x: 2, y: -2)
+                .fill(AppTheme.dynamicSurfaceElevated)
+                .shadow(color: .black.opacity(0.15), radius: 6, x: 2, y: 2)
         )
     }
 
