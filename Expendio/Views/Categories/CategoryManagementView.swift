@@ -115,7 +115,6 @@ struct CategoryManagementView: View {
                 }
             }.padding(24)
             
-            Divider().overlay(AppTheme.border.opacity(0.3))
             HStack {
                 Button("Cancel") { showAddForm = false; editingCategory = nil }.font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.textSecondary).padding(.horizontal, 20).padding(.vertical, 10).background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.surfaceElevated)).buttonStyle(.plain)
                 Spacer()

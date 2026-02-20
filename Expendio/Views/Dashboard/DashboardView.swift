@@ -46,13 +46,13 @@ struct DashboardView: View {
     
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 24) {
+            VStack(alignment: .leading, spacing: 16) {
                 headerSection
                 statsGrid
-                HStack(alignment: .top, spacing: 20) { spendingTrendChart; categoryBreakdown }.fixedSize(horizontal: false, vertical: true)
+                HStack(alignment: .top, spacing: 16) { spendingTrendChart; categoryBreakdown }.fixedSize(horizontal: false, vertical: true)
                 recentExpensesSection
             }
-            .padding(32)
+            .padding(24)
             .frame(maxWidth: .infinity) // Ensures responsiveness inside ScrollView
         }
         .background(AppTheme.dynamicBackground)
@@ -104,8 +104,8 @@ struct DashboardView: View {
                     LineMark(x: .value("Date", item.0), y: .value("Amount", item.1))
                         .foregroundStyle(themeAccent).lineStyle(StrokeStyle(lineWidth: 2)).interpolationMethod(.catmullRom)
                 }
-                .chartXAxis { AxisMarks(values: .stride(by: .day, count: 7)) { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.3)); AxisValueLabel(format: .dateTime.day().month(.abbreviated)).foregroundStyle(AppTheme.textSecondary) } }
-                .chartYAxis { AxisMarks { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.3)); AxisValueLabel().foregroundStyle(AppTheme.textSecondary) } }
+                .chartXAxis { AxisMarks(values: .stride(by: .day, count: 7)) { _ in AxisValueLabel(format: .dateTime.day().month(.abbreviated)).foregroundStyle(AppTheme.textSecondary) } }
+                .chartYAxis { AxisMarks { _ in AxisValueLabel().foregroundStyle(AppTheme.textSecondary) } }
             } else { emptyChart }
         }.glassCard().frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -146,8 +146,7 @@ struct DashboardView: View {
                         VStack(alignment: .leading, spacing: 3) { Text(expense.title).font(.system(size: 14, weight: .medium)).foregroundColor(AppTheme.textPrimary); Text(expense.category?.name ?? "Uncategorized").font(.system(size: 12)).foregroundColor(AppTheme.textSecondary) }
                         Spacer()
                         VStack(alignment: .trailing, spacing: 3) { Text(expense.formattedAmount).font(.system(size: 14, weight: .semibold)).foregroundColor(AppTheme.danger); Text(expense.date, format: .dateTime.month(.abbreviated).day()).font(.system(size: 12)).foregroundColor(AppTheme.textMuted) }
-                    }.padding(.vertical, 4)
-                    if expense.id != allExpenses.prefix(8).last?.id { Divider().overlay(AppTheme.border.opacity(0.3)) }
+                    }.padding(.vertical, 8)
                 }
             }
         }.glassCard()

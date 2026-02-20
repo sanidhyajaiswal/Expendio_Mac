@@ -67,7 +67,6 @@ struct ImportView: View {
             }
             VStack(spacing: 0) {
                 HStack { Text("DATE").frame(width: 100, alignment: .leading); Text("DESCRIPTION").frame(maxWidth: .infinity, alignment: .leading); Text("CATEGORY").frame(width: 140, alignment: .leading); Text("AMOUNT").frame(width: 100, alignment: .trailing) }.font(.system(size: 11, weight: .semibold)).foregroundColor(AppTheme.textMuted).padding(.horizontal, 16).padding(.vertical, 10).background(AppTheme.surface.opacity(0.5))
-                Divider().overlay(AppTheme.border.opacity(0.3))
                 ForEach(Array(parsedExpenses.prefix(50).enumerated()), id: \.offset) { _, exp in
                     HStack { Text(exp.date, format: .dateTime.month(.abbreviated).day().year()).frame(width: 100, alignment: .leading); Text(exp.description).lineLimit(1).frame(maxWidth: .infinity, alignment: .leading); Text(exp.category).frame(width: 140, alignment: .leading); Text("\(exp.currency) \(String(format: "%.0f", exp.cost))").fontWeight(.semibold).frame(width: 100, alignment: .trailing) }.font(.system(size: 13)).foregroundColor(AppTheme.textSecondary).padding(.horizontal, 16).padding(.vertical, 8)
                     Divider().overlay(AppTheme.border.opacity(0.15))

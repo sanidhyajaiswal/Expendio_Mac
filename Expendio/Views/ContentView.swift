@@ -151,10 +151,9 @@ struct ContentView: View {
         ZStack(alignment: .bottomLeading) {
             HStack(spacing: 0) {
                 sidebar(profileId: profileId)
-                Rectangle().fill(AppTheme.border.opacity(0.3)).frame(width: 1)
                 mainContent(profileId: profileId)
                     .frame(maxWidth: .infinity, maxHeight: .infinity)
-                    .background(AppTheme.background)
+                    .background(AppTheme.dynamicBackground)
             }
 
             // Gear panel overlay (inside main content, bottom-left)
@@ -195,7 +194,6 @@ struct ContentView: View {
                 Spacer()
 
                 // Profile card at bottom
-                Divider().overlay(AppTheme.border.opacity(0.3))
                 profileBottomCard
             }
 
@@ -210,7 +208,7 @@ struct ContentView: View {
             }
         }
         .frame(width: 220)
-        .background(AppTheme.surface.opacity(0.5))
+        .background(AppTheme.dynamicSurface) // Use dynamic surface for smooth contrast or blend natively
     }
     
     // MARK: - Profile Bottom Card
@@ -512,15 +510,11 @@ struct ProfileManagementView: View {
             }
             .padding(20)
             
-            Divider().overlay(AppTheme.border.opacity(0.3))
-            
             ScrollView {
                 VStack(spacing: 12) {
                     ForEach(profiles, id: \.id) { profile in
                         profileRow(profile)
                     }
-                    
-                    Divider().overlay(AppTheme.border.opacity(0.2)).padding(.vertical, 8)
                     
                     // Add new profile
                     VStack(alignment: .leading, spacing: 12) {
@@ -620,8 +614,6 @@ struct ProfileDialogSheet: View {
                 }.buttonStyle(.plain)
             }
             .padding(.horizontal, 24).padding(.top, 24).padding(.bottom, 20)
-
-            Divider().overlay(AppTheme.border.opacity(0.3))
 
             VStack(alignment: .leading, spacing: 20) {
                 // Name field

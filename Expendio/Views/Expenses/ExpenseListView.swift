@@ -246,7 +246,6 @@ struct ExpenseListView: View {
                         } else {
                             displayRow(expense)
                         }
-                        Divider().overlay(AppTheme.border.opacity(0.15))
                     }
                 }
             }

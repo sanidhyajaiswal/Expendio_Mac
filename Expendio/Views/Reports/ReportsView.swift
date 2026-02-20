@@ -124,7 +124,6 @@ struct ReportsView: View {
                             Text(String(format: "%.0f%%", total > 0 ? (item.amount / total) * 100 : 0)).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary)
                         }.frame(width: 120, alignment: .trailing)
                     }.padding(.vertical, 6)
-                    Divider().overlay(AppTheme.border.opacity(0.1))
                 }
             }
         }.glassCard()

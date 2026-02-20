@@ -36,10 +36,10 @@ struct AppTheme {
     static let border = Color(hex: "E0E0E0") // Light border, we'll fake dynamic locally if needed, but for now flat is fine or systemGray
     
     // We can use standard semantic system colors for dynamic light/dark
-    static var dynamicBackground: Color { Color(NSColor.windowBackgroundColor) }
-    static var dynamicSurface: Color { Color(NSColor.controlBackgroundColor) }
-    static var dynamicSurfaceElevated: Color { Color(NSColor.alternatingContentBackgroundColors.first ?? .darkGray) }
-    static var dynamicBorder: Color { Color(NSColor.separatorColor) }
+    static var dynamicBackground: Color { Color(NSColor.underPageBackgroundColor) } // Darker background
+    static var dynamicSurface: Color { Color(NSColor.windowBackgroundColor) }
+    static var dynamicSurfaceElevated: Color { Color(NSColor.controlBackgroundColor) }
+    static var dynamicBorder: Color { Color(NSColor.separatorColor).opacity(0.3) } // Softer borders
     
     // Accents
     static let accent = Color(hex: "7C3AED") // Let's keep the user's primary choices
@@ -79,7 +79,7 @@ extension EnvironmentValues {
 
 // MARK: - View Modifiers
 struct GlassCard: ViewModifier {
-    var padding: CGFloat = 20
+    var padding: CGFloat = 16 // compacted
     
     func body(content: Content) -> some View {
         content
@@ -116,7 +116,7 @@ struct StatCard: ViewModifier {
     
     func body(content: Content) -> some View {
         content
-            .padding(16)
+            .padding(14) // compacted
             .frame(maxWidth: .infinity, alignment: .leading) // Ensure flexibility
             .background(
                 RoundedRectangle(cornerRadius: 8)
