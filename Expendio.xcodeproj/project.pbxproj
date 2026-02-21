@@ -9,6 +9,11 @@
 /* Begin PBXBuildFile section */
 		991986A72F49B1510060D33E /* DataTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986A62F49B1510060D33E /* DataTransferService.swift */; };
 		991986AA2F49C9D60060D33E /* MinimalScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986A82F49C9D60060D33E /* MinimalScrollView.swift */; };
+		991986B02F49D6700060D33E /* CategoryRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986AB2F49D6700060D33E /* CategoryRow.swift */; };
+		991986B12F49D6700060D33E /* DialogCloseButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986AD2F49D6700060D33E /* DialogCloseButton.swift */; };
+		991986B22F49D6700060D33E /* ProfileSwitcherButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986AF2F49D6700060D33E /* ProfileSwitcherButton.swift */; };
+		991986B32F49D6700060D33E /* CategoryTableRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986AC2F49D6700060D33E /* CategoryTableRow.swift */; };
+		991986B42F49D6700060D33E /* PanelActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986AE2F49D6700060D33E /* PanelActionButton.swift */; };
 		FA0000000000000000000101 /* ExpendioApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000001 /* ExpendioApp.swift */; };
 		FA0000000000000000000102 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000002 /* Expense.swift */; };
 		FA0000000000000000000103 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000003 /* Category.swift */; };
@@ -28,6 +33,11 @@
 /* Begin PBXFileReference section */
 		991986A62F49B1510060D33E /* DataTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferService.swift; sourceTree = "<group>"; };
 		991986A82F49C9D60060D33E /* MinimalScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimalScrollView.swift; sourceTree = "<group>"; };
+		991986AB2F49D6700060D33E /* CategoryRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryRow.swift; sourceTree = "<group>"; };
+		991986AC2F49D6700060D33E /* CategoryTableRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CategoryTableRow.swift; sourceTree = "<group>"; };
+		991986AD2F49D6700060D33E /* DialogCloseButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogCloseButton.swift; sourceTree = "<group>"; };
+		991986AE2F49D6700060D33E /* PanelActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelActionButton.swift; sourceTree = "<group>"; };
+		991986AF2F49D6700060D33E /* ProfileSwitcherButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSwitcherButton.swift; sourceTree = "<group>"; };
 		FA0000000000000000000001 /* ExpendioApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpendioApp.swift; sourceTree = "<group>"; };
 		FA0000000000000000000002 /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
 		FA0000000000000000000003 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
@@ -60,6 +70,11 @@
 		991986A92F49C9D60060D33E /* Components */ = {
 			isa = PBXGroup;
 			children = (
+				991986AB2F49D6700060D33E /* CategoryRow.swift */,
+				991986AC2F49D6700060D33E /* CategoryTableRow.swift */,
+				991986AD2F49D6700060D33E /* DialogCloseButton.swift */,
+				991986AE2F49D6700060D33E /* PanelActionButton.swift */,
+				991986AF2F49D6700060D33E /* ProfileSwitcherButton.swift */,
 				991986A82F49C9D60060D33E /* MinimalScrollView.swift */,
 			);
 			name = Components;
@@ -260,6 +275,11 @@
 				FA000000000000000000010A /* ReportsView.swift in Sources */,
 				FA000000000000000000010B /* CategoryManagementView.swift in Sources */,
 				991986AA2F49C9D60060D33E /* MinimalScrollView.swift in Sources */,
+				991986B02F49D6700060D33E /* CategoryRow.swift in Sources */,
+				991986B12F49D6700060D33E /* DialogCloseButton.swift in Sources */,
+				991986B22F49D6700060D33E /* ProfileSwitcherButton.swift in Sources */,
+				991986B32F49D6700060D33E /* CategoryTableRow.swift in Sources */,
+				991986B42F49D6700060D33E /* PanelActionButton.swift in Sources */,
 				FA000000000000000000010C /* ImportView.swift in Sources */,
 				FA000000000000000000010E /* Profile.swift in Sources */,
 			);

@@ -228,7 +228,14 @@ struct DashboardView: View {
                 }
                 VStack(spacing: 2) {
                     ForEach(Array(totals.prefix(5).enumerated()), id: \.element.key) { _, item in
-                        DashboardCategoryRow(name: item.key, color: colorFor(item.key), amount: fmt(item.value)) {
+                        CategoryRow(
+                            name: item.key, 
+                            color: colorFor(item.key), 
+                            amount: fmt(item.value),
+                            horizontalPadding: 8,
+                            verticalPadding: 6,
+                            lineLimit: nil
+                        ) {
                             if let cat = categories.first(where: { $0.name == item.key }) { onCategorySelect?(cat, .thisMonth) }
                         }
                     }
@@ -263,29 +270,5 @@ struct DashboardView: View {
     
     private func colorFor(_ name: String) -> Color {
         categories.first(where: { $0.name == name })?.color ?? AppTheme.chartColors[abs(name.hashValue) % AppTheme.chartColors.count]
-    }
-}
-
-struct DashboardCategoryRow: View {
-    let name: String
-    let color: Color
-    let amount: String
-    let action: () -> Void
-    @State private var isHovered = false
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 8) {
-                Circle().fill(color).frame(width: 8, height: 8)
-                Text(name).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary)
-                Spacer()
-                Text(amount).font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
-            }
-            .contentShape(Rectangle())
-            .padding(.vertical, 6).padding(.horizontal, 8)
-            .background(RoundedRectangle(cornerRadius: 6).fill(isHovered ? AppTheme.surfaceElevated : Color.clear))
-        }
-        .buttonStyle(.plain)
-        .onHover { isHovered = $0 }
     }
 }

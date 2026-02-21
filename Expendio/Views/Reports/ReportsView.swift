@@ -242,7 +242,14 @@ struct ReportsView: View {
                 Spacer(minLength: 0)
                 VStack(spacing: 2) { 
                     ForEach(Array(cd.prefix(6).enumerated()), id: \.element.name) { _, item in 
-                        ReportsCategoryRow(name: item.name, color: item.color, amount: fmt(item.amount)) {
+                        CategoryRow(
+                            name: item.name, 
+                            color: item.color, 
+                            amount: fmt(item.amount),
+                            horizontalPadding: 6,
+                            verticalPadding: 4,
+                            lineLimit: 1
+                        ) {
                             if let cat = categories.first(where: { $0.name == item.name }) { onCategorySelect?(cat, dateFilter()) }
                         }
                     } 
@@ -262,7 +269,15 @@ struct ReportsView: View {
                 Divider().overlay(AppTheme.border.opacity(0.3))
                 VStack(spacing: 2) {
                     ForEach(cd, id: \.name) { item in
-                        ReportsCategoryTableRow(item: item, total: total, amountString: fmt(item.amount)) {
+                        CategoryTableRow(
+                            name: item.name,
+                            icon: item.icon,
+                            color: item.color,
+                            count: item.count,
+                            amount: item.amount,
+                            total: total,
+                            amountString: fmt(item.amount)
+                        ) {
                             if let cat = categories.first(where: { $0.name == item.name }) { onCategorySelect?(cat, dateFilter()) }
                         }
                     }
@@ -331,55 +346,4 @@ struct ReportsView: View {
     private func tabIcon(_ t: ReportTab) -> String { switch t { case .monthly: return "calendar"; case .quarterly: return "calendar.badge.clock"; case .yearly: return "chart.line.uptrend.xyaxis" } }
     private var empty: some View { VStack(spacing: 12) { Image(systemName: "chart.bar.xaxis").font(.system(size: 30)).foregroundColor(AppTheme.textMuted); Text("No data for this period").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary) }.frame(maxWidth: .infinity).frame(height: 200) }
     private func fmt(_ v: Double) -> String { let f = NumberFormatter(); f.numberStyle = .currency; f.currencyCode = "INR"; f.maximumFractionDigits = 0; return f.string(from: NSNumber(value: v)) ?? "₹\(Int(v))" }
-}
-
-struct ReportsCategoryRow: View {
-    let name: String
-    let color: Color
-    let amount: String
-    let action: () -> Void
-    @State private var isHovered = false
-    
-    var body: some View {
-        Button(action: action) {
-            HStack(spacing: 8) {
-                Circle().fill(color).frame(width: 8, height: 8)
-                Text(name).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary).lineLimit(1)
-                Spacer()
-                Text(amount).font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
-            }
-            .contentShape(Rectangle())
-            .padding(.vertical, 4).padding(.horizontal, 6)
-            .background(RoundedRectangle(cornerRadius: 6).fill(isHovered ? AppTheme.surfaceElevated : Color.clear))
-        }
-        .buttonStyle(.plain)
-        .onHover { isHovered = $0 }
-    }
-}
-
-struct ReportsCategoryTableRow: View {
-    let item: ReportsView.CatItem
-    let total: Double
-    let amountString: String
-    let action: () -> Void
-    @State private var isHovered = false
-    
-    var body: some View {
-        Button(action: action) {
-            HStack {
-                HStack(spacing: 10) { ZStack { RoundedRectangle(cornerRadius: 8).fill(item.color.opacity(0.15)).frame(width: 32, height: 32); Image(systemName: item.icon).font(.system(size: 14)).foregroundColor(item.color) }; Text(item.name).font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.textPrimary) }.frame(maxWidth: .infinity, alignment: .leading)
-                Text("\(item.count)").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary).frame(width: 100, alignment: .trailing)
-                Text(amountString).font(.system(size: 13, weight: .semibold)).foregroundColor(AppTheme.textPrimary).frame(width: 120, alignment: .trailing)
-                HStack(spacing: 8) {
-                    GeometryReader { geo in ZStack(alignment: .leading) { RoundedRectangle(cornerRadius: 3).fill(AppTheme.surfaceElevated).frame(height: 6); RoundedRectangle(cornerRadius: 3).fill(item.color).frame(width: geo.size.width * CGFloat(total > 0 ? item.amount / total : 0), height: 6) }.frame(height: 6).offset(y: 10) }.frame(width: 60)
-                    Text(String(format: "%.0f%%", total > 0 ? (item.amount / total) * 100 : 0)).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary)
-                }.frame(width: 120, alignment: .trailing)
-            }
-            .contentShape(Rectangle())
-            .padding(.vertical, 4).padding(.horizontal, 8)
-            .background(RoundedRectangle(cornerRadius: 8).fill(isHovered ? AppTheme.surfaceElevated : Color.clear))
-        }
-        .buttonStyle(.plain)
-        .onHover { isHovered = $0 }
-    }
 }
