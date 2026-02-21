@@ -69,3 +69,5 @@ fastlane/test_output
 # Temp files
 tmp/
 .DS_Store
+build/
+buildServer.json
