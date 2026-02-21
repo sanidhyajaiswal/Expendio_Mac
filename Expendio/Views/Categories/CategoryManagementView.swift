@@ -33,24 +33,24 @@ struct CategoryManagementView: View {
         "#14B8A6", "#6B7280", "#EF4444", "#06B6D4", "#84CC16",
         "#F43F5E", "#D946EF", "#0EA5E9",
     ]
-    
+    private var headerBar: some View {
+        HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) {
+                Text("Categories").font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary)
+                Text("\(categories.count) categories").font(.system(size: 14)).foregroundColor(AppTheme.textSecondary)
+            }
+            Spacer()
+            Button { formName = ""; formIcon = "tag.fill"; formColor = "#7C3AED"; showAddForm = true } label: {
+                HStack(spacing: 6) { Image(systemName: "plus").font(.system(size: 12, weight: .bold)); Text("Add Category") }
+                    .font(.system(size: 13, weight: .semibold)).foregroundColor(.white).padding(.horizontal, 16).frame(height: 36)
+                    .background(RoundedRectangle(cornerRadius: 8).fill(themeAccent))
+            }.buttonStyle(.plain)
+        }.padding(.horizontal, 32).padding(.top, 32).padding(.bottom, 24)
+    }        
+            
     var body: some View {
         VStack(spacing: 0) {
-            HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Categories").font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary)
-                    Text("\(categories.count) categories").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary)
-                }
-                Spacer()
-                Button { formName = ""; formIcon = "tag.fill"; formColor = "#7C3AED"; showAddForm = true } label: {
-                    Text("Add Category")
-                        .font(.system(size: 13, weight: .semibold))
-                        .foregroundColor(.white)
-                        .padding(.horizontal, 16)
-                        .padding(.vertical, 8)
-                        .background(RoundedRectangle(cornerRadius: 8).fill(themeAccent))
-                }.buttonStyle(.plain)
-            }.padding(.horizontal, 32).padding(.top, 28).padding(.bottom, 24)
+            headerBar
             
             ScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 240, maximum: 300), spacing: 16)], spacing: 16) {

@@ -52,7 +52,7 @@ struct DashboardView: View {
                 HStack(alignment: .top, spacing: 16) { spendingTrendChart; categoryBreakdown }.fixedSize(horizontal: false, vertical: true)
                 recentExpensesSection
             }
-            .padding(24)
+            .padding(32)
             .frame(maxWidth: .infinity) // Ensures responsiveness inside ScrollView
         }
         .background(AppTheme.dynamicBackground)

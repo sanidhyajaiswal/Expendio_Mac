@@ -106,12 +106,12 @@ struct ExpenseListView: View {
     // MARK: - Header
     private var headerBar: some View {
         HStack(spacing: 12) {
-            VStack(alignment: .leading, spacing: 4) {
+            VStack(alignment: .leading, spacing: 6) {
                 Text("Expenses").font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary)
-                Text("\(filteredExpenses.count) expense\(filteredExpenses.count == 1 ? "" : "s")").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary)
+                Text("\(filteredExpenses.count) expense\(filteredExpenses.count == 1 ? "" : "s")").font(.system(size: 14)).foregroundColor(AppTheme.textSecondary)
             }
             Spacer()
-        }.padding(.horizontal, 32).padding(.top, 28).padding(.bottom, 24)
+        }.padding(.horizontal, 32).padding(.top, 32).padding(.bottom, 24)
     }
 
     // MARK: - Filter Bar

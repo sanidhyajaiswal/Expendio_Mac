@@ -24,11 +24,11 @@ struct ReportsView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text("Reports").font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary)
-                    Text("Analyze your spending patterns").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary)
+                    Text("Analyze your spending patterns").font(.system(size: 14)).foregroundColor(AppTheme.textSecondary)
                 }; Spacer()
-            }.padding(.horizontal, 24).padding(.top, 20).padding(.bottom, 12)
+            }.padding(.horizontal, 32).padding(.top, 32).padding(.bottom, 24)
             
             // Tab Bar
             HStack(spacing: 0) {
@@ -41,13 +41,13 @@ struct ReportsView: View {
                         }
                     }.buttonStyle(.plain)
                 }
-            }.padding(.horizontal, 24).background(VStack { Spacer(); Rectangle().fill(AppTheme.border.opacity(0.3)).frame(height: 1) })
+            }.padding(.horizontal, 32).background(VStack { Spacer(); Rectangle().fill(AppTheme.border.opacity(0.3)).frame(height: 1) })
             ScrollView {
                 VStack(spacing: 20) {
                     periodNavigator; summaryCard
                     HStack(alignment: .top, spacing: 20) { mainChart; categoryPieChart }.fixedSize(horizontal: false, vertical: true)
                     categoryTable
-                }.padding(24).frame(maxWidth: .infinity)
+                }.padding(32).frame(maxWidth: .infinity)
             }
         }.background(AppTheme.dynamicBackground)
     }
