@@ -53,6 +53,7 @@ struct ExpenseListView: View {
     // Multi-select
     @State private var selectedIds: Set<UUID> = []
     @State private var showDeleteSelectedConfirm = false
+    @State private var isHeaderHovered = false
 
     init(profileId: UUID) {
         self.profileId = profileId
@@ -199,35 +200,9 @@ struct ExpenseListView: View {
 
     // MARK: - Table
     private var expenseTable: some View {
-        VStack(spacing: 0) {
-            HStack(spacing: 0) {
-                Image(systemName: allSelected ? "checkmark.square.fill" : "square")
-                    .foregroundColor(allSelected ? themeAccent : AppTheme.textMuted)
-                    .font(.system(size: 15))
-                    .frame(width: 24)
-                    .padding(.trailing, 12)
-                    .onTapGesture {
-                        withAnimation {
-                            if allSelected { selectedIds.removeAll() }
-                            else { selectedIds = Set(filteredExpenses.map(\.id)) }
-                        }
-                    }
-                Text("DATE").frame(width: 100, alignment: .leading)
-                Text("TITLE").frame(maxWidth: .infinity, alignment: .leading)
-                Text("CATEGORY").frame(width: 140, alignment: .leading)
-                Text("AMOUNT").frame(width: 100, alignment: .trailing)
-                Text("NOTES").frame(width: 150, alignment: .leading).padding(.leading, 32)
-                Spacer().frame(width: 40) // To match actions button column in row
-            }
-            .font(.system(size: 11, weight: .bold)) // Stronger header font like Notion
-            .foregroundColor(AppTheme.textMuted)
-            .padding(.horizontal, 20).padding(.vertical, 12)
-            .background(AppTheme.dynamicBackground)
-
-            Divider().overlay(AppTheme.dynamicBorder)
-
-            ScrollView {
-                LazyVStack(spacing: 0) {
+        ScrollView {
+            LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
+                Section(header: tableHeader) {
                     ForEach(filteredExpenses, id: \.id) { expense in
                         if editingExpenseId == expense.id {
                             editingRow(expense)
@@ -239,6 +214,39 @@ struct ExpenseListView: View {
             }
         }
         .padding(.horizontal, 32).padding(.bottom, 32)
+    }
+
+    private var tableHeader: some View {
+        VStack(spacing: 0) {
+            HStack(spacing: 0) {
+                Image(systemName: allSelected ? "checkmark.square.fill" : "square")
+                    .foregroundColor(allSelected ? themeAccent : AppTheme.textMuted)
+                    .font(.system(size: 15))
+                    .frame(width: 24)
+                    .padding(.trailing, 12)
+                    .opacity(allSelected || isHeaderHovered ? 1 : 0)
+                    .onTapGesture {
+                        withAnimation {
+                            if allSelected { selectedIds.removeAll() }
+                            else { selectedIds = Set(filteredExpenses.map(\.id)) }
+                        }
+                    }
+                Text("DATE").frame(width: 100, alignment: .leading)
+                Text("TITLE").frame(maxWidth: .infinity, alignment: .leading)
+                Text("CATEGORY").frame(width: 120, alignment: .leading)
+                Text("AMOUNT").frame(width: 80, alignment: .trailing)
+                Spacer().frame(width: 48)
+                Text("NOTES").frame(width: 140, alignment: .leading)
+                Spacer().frame(width: 64) // To match actions button column in row
+            }
+            .font(.system(size: 11, weight: .bold)) // Stronger header font like Notion
+            .foregroundColor(AppTheme.textMuted)
+            .padding(.horizontal, 20).padding(.vertical, 12)
+            .background(AppTheme.dynamicBackground)
+            .onHover { h in withAnimation(.easeInOut(duration: 0.1)) { isHeaderHovered = h } }
+
+            Divider().overlay(AppTheme.dynamicBorder)
+        }
     }
 
     // MARK: - Expense Row
@@ -266,15 +274,16 @@ struct ExpenseListView: View {
             HStack(spacing: 6) {
                 if let cat = expense.category { Circle().fill(cat.color).frame(width: 8, height: 8); Text(cat.name).lineLimit(1) }
                 else { Text("Uncategorized") }
-            }.frame(width: 140, alignment: .leading)
-            Text(expense.formattedAmount).font(.system(size: 13, weight: .semibold)).foregroundColor(AppTheme.danger).frame(width: 100, alignment: .trailing)
-            Text(expense.notes.isEmpty ? "—" : expense.notes).font(.system(size: 12)).foregroundColor(AppTheme.textMuted).lineLimit(1).frame(width: 150, alignment: .leading).padding(.leading, 32)
+            }.frame(width: 120, alignment: .leading)
+            Text(expense.formattedAmount).font(.system(size: 13, weight: .semibold)).foregroundColor(AppTheme.danger).frame(width: 80, alignment: .trailing)
+            Spacer().frame(width: 48)
+            Text(expense.notes.isEmpty ? "—" : expense.notes).font(.system(size: 12)).foregroundColor(AppTheme.textMuted).lineLimit(1).frame(width: 140, alignment: .leading)
             HStack(spacing: 8) {
                 Button { startEditing(expense) } label: {
                     Image(systemName: "pencil").font(.system(size: 12)).foregroundColor(AppTheme.textSecondary)
                         .frame(width: 28, height: 28).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.surfaceElevated))
                 }.buttonStyle(.plain).opacity(hoveredExpenseId == expense.id ? 1 : 0)
-            }.frame(width: 40, alignment: .trailing)
+            }.frame(width: 64, alignment: .trailing)
         }
         .padding(.horizontal, 20).padding(.vertical, 8)
         .background(isSelected ? themeAccent.opacity(0.08) : (hoveredExpenseId == expense.id ? AppTheme.dynamicSurfaceElevated : Color.clear))
@@ -285,18 +294,20 @@ struct ExpenseListView: View {
     // MARK: - Editing Row
     private func editingRow(_ expense: Expense) -> some View {
         HStack(spacing: 0) {
+            Spacer().frame(width: 24).padding(.trailing, 12)
             DatePicker("", selection: $editDate, displayedComponents: .date).labelsHidden().datePickerStyle(.field).frame(width: 100, alignment: .leading)
             TextField("Title", text: $editTitle).textFieldStyle(.plain).font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.textPrimary).padding(.horizontal, 8).padding(.vertical, 4).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.dynamicSurfaceElevated)).frame(maxWidth: .infinity, alignment: .leading)
             Picker("", selection: $editCategory) {
                 Text("None").tag(nil as ExpenseCategory?)
                 ForEach(categories, id: \.id) { cat in Label(cat.name, systemImage: cat.icon).tag(cat as ExpenseCategory?) }
-            }.labelsHidden().frame(width: 140)
-            TextField("0", text: $editAmount).textFieldStyle(.plain).font(.system(size: 13, weight: .semibold)).foregroundColor(AppTheme.danger).multilineTextAlignment(.trailing).padding(.horizontal, 8).padding(.vertical, 4).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.dynamicSurfaceElevated)).frame(width: 100)
-            TextField("Notes", text: $editNotes).textFieldStyle(.plain).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary).padding(.horizontal, 8).padding(.vertical, 4).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.dynamicSurfaceElevated)).frame(width: 150).padding(.leading, 16)
+            }.labelsHidden().frame(width: 120, alignment: .leading)
+            TextField("0", text: $editAmount).textFieldStyle(.plain).font(.system(size: 13, weight: .semibold)).foregroundColor(AppTheme.danger).multilineTextAlignment(.trailing).padding(.horizontal, 8).padding(.vertical, 4).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.dynamicSurfaceElevated)).frame(width: 80, alignment: .trailing)
+            Spacer().frame(width: 48)
+            TextField("Notes", text: $editNotes).textFieldStyle(.plain).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary).padding(.horizontal, 8).padding(.vertical, 4).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.dynamicSurfaceElevated)).frame(width: 140, alignment: .leading)
             HStack(spacing: 6) {
                 Button { saveEdit(expense) } label: { Image(systemName: "checkmark").font(.system(size: 12, weight: .bold)).foregroundColor(AppTheme.success).frame(width: 28, height: 28).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.success.opacity(0.15))) }.buttonStyle(.plain)
                 Button { editingExpenseId = nil } label: { Image(systemName: "xmark").font(.system(size: 12, weight: .bold)).foregroundColor(AppTheme.danger).frame(width: 28, height: 28).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.danger.opacity(0.15))) }.buttonStyle(.plain)
-            }.frame(width: 80)
+            }.frame(width: 64, alignment: .trailing)
         }.padding(.horizontal, 20).padding(.vertical, 8).background(themeAccent.opacity(0.05))
     }
 
