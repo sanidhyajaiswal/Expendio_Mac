@@ -120,23 +120,46 @@ struct DashboardView: View {
             let totals = Dictionary(grouping: currentMonthExpenses) { $0.category?.name ?? "Other" }
                 .mapValues { $0.reduce(0) { $0 + $1.amount } }.sorted { $0.value > $1.value }
             if !totals.isEmpty {
-                Chart(totals, id: \.key) { item in
-                    SectorMark(angle: .value("Amount", item.value), innerRadius: .ratio(0.6), angularInset: 2)
-                        .foregroundStyle(colorFor(item.key)).cornerRadius(4)
-                }
-                .frame(height: 180)
-                .chartAngleSelection(value: $selectedPieAmount)
-                .onTapGesture {
-                    if let newValue = selectedPieAmount {
+                let hoveredCategory: String? = {
+                    if let value = selectedPieAmount {
                         var cumulative = 0.0
                         for item in totals {
                             cumulative += item.value
-                            if newValue <= cumulative {
-                                if let cat = categories.first(where: { $0.name == item.key }) {
-                                    onCategorySelect?(cat, .thisMonth)
-                                }
-                                break
+                            if value <= cumulative { return item.key }
+                        }
+                    }
+                    return nil
+                }()
+                
+                Chart(totals, id: \.key) { item in
+                    let isHovered = hoveredCategory == item.key
+                    SectorMark(
+                        angle: .value("Amount", item.value),
+                        innerRadius: .ratio(0.65),
+                        outerRadius: isHovered ? .ratio(1.0) : .ratio(0.9),
+                        angularInset: 2
+                    )
+                    .foregroundStyle(colorFor(item.key)).cornerRadius(4)
+                    .opacity(hoveredCategory == nil || isHovered ? 1.0 : 0.6)
+                }
+                .frame(height: 180)
+                .chartAngleSelection(value: $selectedPieAmount)
+                .chartBackground { proxy in
+                    GeometryReader { geo in
+                        if let key = hoveredCategory, let val = totals.first(where: { $0.key == key })?.value {
+                            VStack(spacing: 2) {
+                                Text(key).font(.system(size: 13, weight: .semibold)).foregroundColor(AppTheme.textPrimary).multilineTextAlignment(.center)
+                                Text(fmt(val)).font(.system(size: 11, weight: .medium)).foregroundColor(AppTheme.textSecondary)
                             }
+                            .frame(width: geo.size.width * 0.6)
+                            .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
+                        }
+                    }
+                }
+                .onTapGesture {
+                    if let key = hoveredCategory {
+                        if let cat = categories.first(where: { $0.name == key }) {
+                            onCategorySelect?(cat, .thisMonth)
                         }
                     }
                 }

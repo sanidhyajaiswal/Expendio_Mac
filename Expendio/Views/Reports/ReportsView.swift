@@ -119,20 +119,47 @@ struct ReportsView: View {
             Text("By Category").font(.system(size: 16, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
             let cd = catData()
             if cd.isEmpty { empty } else {
-                Chart(cd, id: \.name) { item in SectorMark(angle: .value("Amount", item.amount), innerRadius: .ratio(0.55), angularInset: 2).foregroundStyle(item.color).cornerRadius(4) }
-                .frame(minHeight: 140)
-                .chartAngleSelection(value: $selectedPieAmount)
-                .onTapGesture {
-                    if let newValue = selectedPieAmount {
+                let hoveredCategory: String? = {
+                    if let value = selectedPieAmount {
                         var cumulative = 0.0
                         for item in cd {
                             cumulative += item.amount
-                            if newValue <= cumulative {
-                                if let cat = categories.first(where: { $0.name == item.name }) {
-                                    onCategorySelect?(cat, dateFilter())
-                                }
-                                break
+                            if value <= cumulative { return item.name }
+                        }
+                    }
+                    return nil
+                }()
+
+                Chart(cd, id: \.name) { item in 
+                    let isHovered = hoveredCategory == item.name
+                    SectorMark(
+                        angle: .value("Amount", item.amount), 
+                        innerRadius: .ratio(0.65), 
+                        outerRadius: isHovered ? .ratio(1.0) : .ratio(0.9),
+                        angularInset: 2
+                    )
+                    .foregroundStyle(item.color)
+                    .cornerRadius(4)
+                    .opacity(hoveredCategory == nil || isHovered ? 1.0 : 0.6)
+                }
+                .frame(minHeight: 140)
+                .chartAngleSelection(value: $selectedPieAmount)
+                .chartBackground { proxy in
+                    GeometryReader { geo in
+                        if let key = hoveredCategory, let val = cd.first(where: { $0.name == key })?.amount {
+                            VStack(spacing: 2) {
+                                Text(key).font(.system(size: 11, weight: .semibold)).foregroundColor(AppTheme.textPrimary).multilineTextAlignment(.center)
+                                Text(fmt(val)).font(.system(size: 10, weight: .medium)).foregroundColor(AppTheme.textSecondary)
                             }
+                            .frame(width: geo.size.width * 0.6)
+                            .position(x: geo.frame(in: .local).midX, y: geo.frame(in: .local).midY)
+                        }
+                    }
+                }
+                .onTapGesture {
+                    if let key = hoveredCategory {
+                        if let cat = categories.first(where: { $0.name == key }) {
+                            onCategorySelect?(cat, dateFilter())
                         }
                     }
                 }
