@@ -25,7 +25,7 @@ Expendio is a beautifully designed, native macOS personal finance tracker built 
 1. **Clone the repository:**
 
    ```bash
-   git clone https://github.com/yourusername/Expendio_Mac.git
+   https://github.com/sanidhyajaiswal/Expendio_Mac.git
    ```
 
 2. **Open the project:**
