@@ -43,7 +43,12 @@ struct CategoryManagementView: View {
                 }
                 Spacer()
                 Button { formName = ""; formIcon = "tag.fill"; formColor = "#7C3AED"; showAddForm = true } label: {
-                    HStack(spacing: 6) { Image(systemName: "plus"); Text("Add Category") }.gradientButton()
+                    Text("Add Category")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.white)
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 8)
+                        .background(RoundedRectangle(cornerRadius: 8).fill(themeAccent))
                 }.buttonStyle(.plain)
             }.padding(.horizontal, 32).padding(.top, 28).padding(.bottom, 24)
             
@@ -63,67 +68,133 @@ struct CategoryManagementView: View {
     private func categoryCard(_ cat: ExpenseCategory) -> some View {
         VStack(alignment: .leading, spacing: 14) {
             HStack(spacing: 12) {
-                ZStack { RoundedRectangle(cornerRadius: 12).fill(cat.color.opacity(0.15)).frame(width: 44, height: 44); Image(systemName: cat.icon).font(.system(size: 20)).foregroundColor(cat.color) }
+                ZStack { 
+                    RoundedRectangle(cornerRadius: 10).fill(cat.color.opacity(0.15)).frame(width: 40, height: 40)
+                    Image(systemName: cat.icon).font(.system(size: 18)).foregroundColor(cat.color) 
+                }
                 VStack(alignment: .leading, spacing: 3) {
                     Text(cat.name).font(.system(size: 15, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
                     Text("\(cat.expenses.count) expenses").font(.system(size: 12)).foregroundColor(AppTheme.textSecondary)
                 }
                 Spacer()
                 if hoveredCategoryId == cat.id {
-                    HStack(spacing: 6) {
-                        Button { editingCategory = cat } label: { Image(systemName: "pencil").font(.system(size: 12)).foregroundColor(AppTheme.textSecondary).frame(width: 28, height: 28).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.surfaceElevated)) }.buttonStyle(.plain)
-                        Button { withAnimation { modelContext.delete(cat); try? modelContext.save() } } label: { Image(systemName: "trash").font(.system(size: 12)).foregroundColor(AppTheme.danger).frame(width: 28, height: 28).background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.danger.opacity(0.1))) }.buttonStyle(.plain)
+                    HStack(spacing: 8) {
+                        Button { editingCategory = cat } label: { 
+                            Image(systemName: "pencil")
+                                .font(.system(size: 13))
+                                .foregroundColor(AppTheme.textSecondary)
+                                .frame(width: 32, height: 32)
+                                .background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.dynamicSurfaceElevated))
+                        }.buttonStyle(.plain)
+                        Button { withAnimation { modelContext.delete(cat); try? modelContext.save() } } label: { 
+                            Image(systemName: "trash")
+                                .font(.system(size: 13))
+                                .foregroundColor(AppTheme.danger)
+                                .frame(width: 32, height: 32)
+                                .background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.danger.opacity(0.1))) 
+                        }.buttonStyle(.plain)
                     }.transition(.opacity)
                 }
             }
-        }.padding(18)
-        .background(RoundedRectangle(cornerRadius: 16).fill(AppTheme.surface.opacity(0.7)).overlay(RoundedRectangle(cornerRadius: 16).stroke(hoveredCategoryId == cat.id ? cat.color.opacity(0.4) : AppTheme.border.opacity(0.3), lineWidth: 1)))
+        }.padding(16)
+        .background(RoundedRectangle(cornerRadius: 12).fill(hoveredCategoryId == cat.id ? AppTheme.dynamicSurfaceElevated : Color.clear))
         .onHover { h in withAnimation(.easeInOut(duration: 0.15)) { hoveredCategoryId = h ? cat.id : nil } }
     }
     
+    private func formField<Content: View>(label: String, @ViewBuilder content: () -> Content) -> some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(label).font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textSecondary)
+            content()
+                .padding(.horizontal, 12).padding(.vertical, 10)
+                .background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.dynamicSurfaceElevated))
+        }
+    }
+
     private func categoryForm(editing: ExpenseCategory?) -> some View {
         VStack(spacing: 0) {
-            VStack(spacing: 10) {
-                ZStack { RoundedRectangle(cornerRadius: 16).fill(Color(hex: formColor).opacity(0.15)).frame(width: 60, height: 60); Image(systemName: formIcon).font(.system(size: 28)).foregroundColor(Color(hex: formColor)) }
-                Text(editing != nil ? "Edit Category" : "New Category").font(.system(size: 20, weight: .bold)).foregroundColor(AppTheme.textPrimary)
-            }.frame(maxWidth: .infinity).padding(.vertical, 24).background(themeAccent.opacity(0.08))
-            
-            VStack(spacing: 20) {
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Name").font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textSecondary)
-                    TextField("Category name", text: $formName).textFieldStyle(.plain).font(.system(size: 14)).foregroundColor(AppTheme.textPrimary).padding(12)
-                        .background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.surfaceElevated).overlay(RoundedRectangle(cornerRadius: 10).stroke(AppTheme.border.opacity(0.5), lineWidth: 1)))
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Icon").font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textSecondary)
-                    LazyVGrid(columns: Array(repeating: GridItem(.fixed(40), spacing: 8), count: 8), spacing: 8) {
-                        ForEach(icons, id: \.self) { ic in
-                            Button { formIcon = ic } label: {
-                                Image(systemName: ic).font(.system(size: 16)).foregroundColor(formIcon == ic ? Color(hex: formColor) : AppTheme.textSecondary).frame(width: 36, height: 36)
-                                    .background(RoundedRectangle(cornerRadius: 8).fill(formIcon == ic ? Color(hex: formColor).opacity(0.15) : AppTheme.surfaceElevated).overlay(RoundedRectangle(cornerRadius: 8).stroke(formIcon == ic ? Color(hex: formColor).opacity(0.5) : Color.clear, lineWidth: 1.5)))
-                            }.buttonStyle(.plain)
-                        }
-                    }
-                }
-                VStack(alignment: .leading, spacing: 8) {
-                    Text("Color").font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textSecondary)
-                    LazyVGrid(columns: Array(repeating: GridItem(.fixed(32), spacing: 8), count: 9), spacing: 8) {
-                        ForEach(colors, id: \.self) { c in
-                            Button { formColor = c } label: { Circle().fill(Color(hex: c)).frame(width: 28, height: 28).overlay(Circle().stroke(Color.white, lineWidth: formColor == c ? 2.5 : 0)).scaleEffect(formColor == c ? 1.15 : 1.0).animation(.spring(response: 0.3), value: formColor == c) }.buttonStyle(.plain)
-                        }
-                    }
-                }
-            }.padding(24)
-            
             HStack {
-                Button("Cancel") { showAddForm = false; editingCategory = nil }.font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.textSecondary).padding(.horizontal, 20).padding(.vertical, 10).background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.surfaceElevated)).buttonStyle(.plain)
+                Text(editing != nil ? "Edit Category" : "New Category")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(AppTheme.textPrimary)
                 Spacer()
+                Button { showAddForm = false; editingCategory = nil } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(AppTheme.textMuted)
+                }.buttonStyle(.plain)
+            }
+            .padding(.horizontal, 24).padding(.top, 24).padding(.bottom, 20)
+            
+            ScrollView {
+                VStack(spacing: 24) {
+                    formField(label: "Name") {
+                        TextField("Category name", text: $formName)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 15))
+                            .foregroundColor(AppTheme.textPrimary)
+                    }
+                    
+                    formField(label: "Icon") {
+                        LazyVGrid(columns: Array(repeating: GridItem(.fixed(36), spacing: 8), count: 8), spacing: 8) {
+                            ForEach(icons, id: \.self) { ic in
+                                Button { formIcon = ic } label: {
+                                    Image(systemName: ic)
+                                        .font(.system(size: 16))
+                                        .foregroundColor(formIcon == ic ? Color(hex: formColor) : AppTheme.textSecondary)
+                                        .frame(width: 36, height: 36)
+                                        .background(
+                                            RoundedRectangle(cornerRadius: 8)
+                                                .fill(formIcon == ic ? Color(hex: formColor).opacity(0.15) : Color.clear)
+                                        )
+                                }.buttonStyle(.plain)
+                            }
+                        }
+                    }
+                    
+                    formField(label: "Color") {
+                        LazyVGrid(columns: Array(repeating: GridItem(.fixed(28), spacing: 10), count: 9), spacing: 12) {
+                            ForEach(colors, id: \.self) { c in
+                                Button { formColor = c } label: { 
+                                    Circle()
+                                        .fill(Color(hex: c))
+                                        .frame(width: 24, height: 24)
+                                        .overlay(
+                                            Circle()
+                                                .stroke(Color.white.opacity(0.8), lineWidth: formColor == c ? 2 : 0)
+                                                .scaleEffect(1.2)
+                                        )
+                                }.buttonStyle(.plain)
+                            }
+                        }
+                    }
+                }
+                .padding(.horizontal, 24).padding(.bottom, 24)
+            }
+            
+            HStack(spacing: 12) {
+                Button { showAddForm = false; editingCategory = nil } label: {
+                    Text("Cancel")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(AppTheme.danger)
+                        .frame(maxWidth: .infinity).padding(.vertical, 10)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.dynamicSurfaceElevated))
+                }.buttonStyle(.plain)
+
                 Button {
                     if let cat = editing { cat.name = formName; cat.icon = formIcon; cat.colorHex = formColor; try? modelContext.save(); editingCategory = nil }
                     else { modelContext.insert(ExpenseCategory(name: formName, icon: formIcon, colorHex: formColor, profileId: profileId)); try? modelContext.save(); showAddForm = false }
-                } label: { Text(editing != nil ? "Save" : "Add").gradientButton() }.buttonStyle(.plain).disabled(formName.isEmpty)
-            }.padding(20)
-        }.frame(width: 440, height: 560).background(AppTheme.background)
+                } label: { 
+                    Text(editing != nil ? "Save Category" : "Add Category")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity).padding(.vertical, 10)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(themeAccent))
+                }
+                .buttonStyle(.plain)
+                .disabled(formName.isEmpty)
+                .opacity(formName.isEmpty ? 0.5 : 1.0)
+            }.padding(24)
+        }.frame(width: 440, height: 500).background(AppTheme.dynamicBackground)
     }
 }
 
