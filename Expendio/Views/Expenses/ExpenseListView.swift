@@ -236,7 +236,7 @@ struct ExpenseListView: View {
 
     // MARK: - Table
     private var expenseTable: some View {
-        ScrollView {
+        MinimalScrollView {
             LazyVStack(spacing: 0, pinnedViews: [.sectionHeaders]) {
                 Section(header: tableHeader) {
                     ForEach(filteredExpenses, id: \.id) { expense in
@@ -248,8 +248,9 @@ struct ExpenseListView: View {
                     }
                 }
             }
+            .padding(.horizontal, 32)
+            .padding(.bottom, 32)
         }
-        .padding(.horizontal, 32).padding(.bottom, 32)
     }
 
     private var tableHeader: some View {

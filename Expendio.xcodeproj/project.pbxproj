@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		991986A72F49B1510060D33E /* DataTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986A62F49B1510060D33E /* DataTransferService.swift */; };
+		991986AA2F49C9D60060D33E /* MinimalScrollView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986A82F49C9D60060D33E /* MinimalScrollView.swift */; };
 		FA0000000000000000000101 /* ExpendioApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000001 /* ExpendioApp.swift */; };
 		FA0000000000000000000102 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000002 /* Expense.swift */; };
 		FA0000000000000000000103 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000003 /* Category.swift */; };
@@ -26,6 +27,7 @@
 
 /* Begin PBXFileReference section */
 		991986A62F49B1510060D33E /* DataTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferService.swift; sourceTree = "<group>"; };
+		991986A82F49C9D60060D33E /* MinimalScrollView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MinimalScrollView.swift; sourceTree = "<group>"; };
 		FA0000000000000000000001 /* ExpendioApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpendioApp.swift; sourceTree = "<group>"; };
 		FA0000000000000000000002 /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
 		FA0000000000000000000003 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
@@ -55,6 +57,15 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		991986A92F49C9D60060D33E /* Components */ = {
+			isa = PBXGroup;
+			children = (
+				991986A82F49C9D60060D33E /* MinimalScrollView.swift */,
+			);
+			name = Components;
+			path = Expendio/Components;
+			sourceTree = SOURCE_ROOT;
+		};
 		FC0000000000000000000001 = {
 			isa = PBXGroup;
 			children = (
@@ -69,6 +80,7 @@
 				FA0000000000000000000001 /* ExpendioApp.swift */,
 				FC0000000000000000000003 /* Models */,
 				FC0000000000000000000004 /* Services */,
+				991986A92F49C9D60060D33E /* Components */,
 				FC0000000000000000000005 /* Theme */,
 				FC0000000000000000000006 /* Views */,
 				FA000000000000000000000D /* Assets.xcassets */,
@@ -247,6 +259,7 @@
 				FA0000000000000000000109 /* AddExpenseView.swift in Sources */,
 				FA000000000000000000010A /* ReportsView.swift in Sources */,
 				FA000000000000000000010B /* CategoryManagementView.swift in Sources */,
+				991986AA2F49C9D60060D33E /* MinimalScrollView.swift in Sources */,
 				FA000000000000000000010C /* ImportView.swift in Sources */,
 				FA000000000000000000010E /* Profile.swift in Sources */,
 			);

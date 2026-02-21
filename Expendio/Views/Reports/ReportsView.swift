@@ -46,7 +46,7 @@ struct ReportsView: View {
                     }.buttonStyle(.plain)
                 }
             }.padding(.horizontal, 32).background(VStack { Spacer(); Rectangle().fill(AppTheme.border.opacity(0.3)).frame(height: 1) })
-            ScrollView {
+            MinimalScrollView {
                 VStack(spacing: 20) {
                     periodNavigator; summaryCard
                     HStack(alignment: .top, spacing: 20) { mainChart; categoryPieChart }.fixedSize(horizontal: false, vertical: true)

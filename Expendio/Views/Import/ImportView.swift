@@ -36,7 +36,7 @@ struct ImportView: View {
             .padding(.horizontal, 24).padding(.top, 24).padding(.bottom, 20)
             
             if importStatus == .previewing {
-                ScrollView {
+                MinimalScrollView {
                     VStack(spacing: 20) {
                         if let err = errorMessage { errorBanner(err) }
                         previewSection

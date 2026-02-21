@@ -36,7 +36,7 @@ struct AddExpenseView: View {
             }
             .padding(.horizontal, 24).padding(.top, 24).padding(.bottom, 20)
             
-            ScrollView {
+            MinimalScrollView {
                 VStack(spacing: 20) {
                     formField(label: "Title", icon: "textformat") { 
                         TextField("e.g. Grocery shopping", text: $title)

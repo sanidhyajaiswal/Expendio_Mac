@@ -52,7 +52,7 @@ struct CategoryManagementView: View {
         VStack(spacing: 0) {
             headerBar
             
-            ScrollView {
+            MinimalScrollView {
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 240, maximum: 300), spacing: 16)], spacing: 16) {
                     ForEach(categories, id: \.id) { cat in categoryCard(cat) }
                 }.padding(.horizontal, 32).padding(.bottom, 32).frame(maxWidth: .infinity)
@@ -125,7 +125,7 @@ struct CategoryManagementView: View {
             }
             .padding(.horizontal, 24).padding(.top, 24).padding(.bottom, 20)
             
-            ScrollView {
+            MinimalScrollView {
                 VStack(spacing: 24) {
                     formField(label: "Name") {
                         TextField("Category name", text: $formName)

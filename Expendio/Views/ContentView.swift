@@ -501,7 +501,7 @@ struct ProfileManagementView: View {
             }
             .padding(20)
             
-            ScrollView {
+            MinimalScrollView {
                 VStack(spacing: 12) {
                     ForEach(profiles, id: \.id) { profile in
                         profileRow(profile)

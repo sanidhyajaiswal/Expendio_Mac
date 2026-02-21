@@ -55,7 +55,7 @@ struct DashboardView: View {
     }
     
     var body: some View {
-        ScrollView {
+        MinimalScrollView {
             VStack(alignment: .leading, spacing: 16) {
                 headerSection
                 statsGrid
