@@ -3,12 +3,14 @@ import SwiftData
 import Charts
 
 enum ReportTab: String, CaseIterable { case monthly = "Monthly"; case quarterly = "Quarterly"; case yearly = "Yearly" }
+enum ChartType: String, CaseIterable { case bar = "Bar"; case line = "Line" }
 
 struct ReportsView: View {
     let profileId: UUID
     @Query private var allExpenses: [Expense]
     @Query private var categories: [ExpenseCategory]
     @State private var selectedTab: ReportTab = .monthly
+    @State private var selectedChartType: ChartType = .bar
     @State private var currentDate = Date()
     @Environment(\.themeAccent) private var themeAccent
     
@@ -26,7 +28,7 @@ struct ReportsView: View {
                     Text("Reports").font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary)
                     Text("Analyze your spending patterns").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary)
                 }; Spacer()
-            }.padding(.horizontal, 32).padding(.top, 28).padding(.bottom, 16)
+            }.padding(.horizontal, 24).padding(.top, 20).padding(.bottom, 12)
             
             // Tab Bar
             HStack(spacing: 0) {
@@ -39,14 +41,13 @@ struct ReportsView: View {
                         }
                     }.buttonStyle(.plain)
                 }
-            }.padding(.horizontal, 32).background(VStack { Spacer(); Rectangle().fill(AppTheme.border.opacity(0.3)).frame(height: 1) })
-            
+            }.padding(.horizontal, 24).background(VStack { Spacer(); Rectangle().fill(AppTheme.border.opacity(0.3)).frame(height: 1) })
             ScrollView {
                 VStack(spacing: 20) {
                     periodNavigator; summaryCard
                     HStack(alignment: .top, spacing: 20) { mainChart; categoryPieChart }.fixedSize(horizontal: false, vertical: true)
                     categoryTable
-                }.padding(32).frame(maxWidth: .infinity)
+                }.padding(24).frame(maxWidth: .infinity)
             }
         }.background(AppTheme.dynamicBackground)
     }
@@ -64,31 +65,47 @@ struct ReportsView: View {
     
     private var summaryCard: some View {
         let f = filtered; let total = f.reduce(0) { $0 + $1.amount }; let count = f.count; let avg = count > 0 ? total / Double(count) : 0
-        return HStack(spacing: 16) {
-            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "indianrupeesign.circle.fill").foregroundColor(themeAccent); Text("Total Spending").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text(fmt(total)).font(.system(size: 36, weight: .bold)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: themeAccent).frame(maxHeight: .infinity)
-            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "number.circle.fill").foregroundColor(AppTheme.accentSecondary); Text("Transactions").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text("\(count)").font(.system(size: 36, weight: .bold)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.accentSecondary).frame(maxHeight: .infinity)
-            VStack(alignment: .leading, spacing: 8) { HStack(spacing: 6) { Image(systemName: "divide.circle.fill").foregroundColor(AppTheme.warning); Text("Avg / Transaction").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 13, weight: .medium)); Text(fmt(avg)).font(.system(size: 36, weight: .bold)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.warning).frame(maxHeight: .infinity)
+        return HStack(spacing: 12) {
+            VStack(alignment: .leading, spacing: 6) { HStack(spacing: 6) { Image(systemName: "indianrupeesign.circle.fill").foregroundColor(themeAccent); Text("Total Spending").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 12, weight: .medium)); Text(fmt(total)).font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: themeAccent).frame(maxHeight: .infinity)
+            VStack(alignment: .leading, spacing: 6) { HStack(spacing: 6) { Image(systemName: "number.circle.fill").foregroundColor(AppTheme.accentSecondary); Text("Transactions").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 12, weight: .medium)); Text("\(count)").font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.accentSecondary).frame(maxHeight: .infinity)
+            VStack(alignment: .leading, spacing: 6) { HStack(spacing: 6) { Image(systemName: "divide.circle.fill").foregroundColor(AppTheme.warning); Text("Avg / Transaction").foregroundColor(AppTheme.textSecondary) }.font(.system(size: 12, weight: .medium)); Text(fmt(avg)).font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary) }.statCard(accent: AppTheme.warning).frame(maxHeight: .infinity)
         }.frame(maxWidth: .infinity).fixedSize(horizontal: false, vertical: true)
     }
     
     // MARK: - Charts
     @ViewBuilder private var mainChart: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text(chartTitle).font(.system(size: 16, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
+            HStack {
+                Text(chartTitle).font(.system(size: 16, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
+                Spacer()
+                // Chart Type Toggle
+                HStack(spacing: 4) {
+                    ForEach(ChartType.allCases, id: \.self) { type in
+                        Button { withAnimation { selectedChartType = type } } label: {
+                            Image(systemName: type == .bar ? "chart.bar.fill" : "chart.line.uptrend.xyaxis")
+                                .font(.system(size: 12))
+                                .foregroundColor(selectedChartType == type ? AppTheme.textPrimary : AppTheme.textMuted)
+                                .padding(6)
+                                .background(RoundedRectangle(cornerRadius: 6).fill(selectedChartType == type ? AppTheme.surfaceElevated : Color.clear))
+                        }.buttonStyle(.plain)
+                    }
+                }.padding(2).background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.background))
+            }
+            
             let data = chartData
             if data.isEmpty { empty } else {
                 Chart(data, id: \.label) { item in
-                    switch selectedTab {
-                    case .monthly: BarMark(x: .value("Day", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent).cornerRadius(4)
-                    case .quarterly: BarMark(x: .value("Month", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent).cornerRadius(6)
-                    case .yearly:
-                        LineMark(x: .value("Month", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent).lineStyle(StrokeStyle(lineWidth: 3)).interpolationMethod(.catmullRom).symbol { Circle().fill(themeAccent).frame(width: 8, height: 8) }
-                        AreaMark(x: .value("Month", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent.opacity(0.12)).interpolationMethod(.catmullRom)
+                    switch selectedChartType {
+                    case .bar: 
+                        BarMark(x: .value("Period", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent).cornerRadius(4)
+                    case .line:
+                        LineMark(x: .value("Period", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent).lineStyle(StrokeStyle(lineWidth: 3)).interpolationMethod(.catmullRom).symbol { Circle().fill(themeAccent).frame(width: 8, height: 8) }
+                        AreaMark(x: .value("Period", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent.opacity(0.12)).interpolationMethod(.catmullRom)
                     }
                 }
                 .chartXAxis { AxisMarks { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.3)); AxisValueLabel().foregroundStyle(AppTheme.textSecondary) } }
                 .chartYAxis { AxisMarks { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.2)); AxisValueLabel().foregroundStyle(AppTheme.textSecondary) } }
-                .frame(minHeight: 220, maxHeight: .infinity)
+                .frame(minHeight: 180, maxHeight: .infinity)
             }
         }.glassCard().frame(maxWidth: .infinity, maxHeight: .infinity)
     }
@@ -98,11 +115,11 @@ struct ReportsView: View {
             Text("By Category").font(.system(size: 16, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
             let cd = catData()
             if cd.isEmpty { empty } else {
-                Chart(cd, id: \.name) { item in SectorMark(angle: .value("Amount", item.amount), innerRadius: .ratio(0.55), angularInset: 2).foregroundStyle(item.color).cornerRadius(4) }.frame(minHeight: 180)
+                Chart(cd, id: \.name) { item in SectorMark(angle: .value("Amount", item.amount), innerRadius: .ratio(0.55), angularInset: 2).foregroundStyle(item.color).cornerRadius(4) }.frame(minHeight: 140)
                 Spacer(minLength: 0)
                 VStack(spacing: 6) { ForEach(Array(cd.prefix(6).enumerated()), id: \.element.name) { _, item in HStack(spacing: 8) { Circle().fill(item.color).frame(width: 8, height: 8); Text(item.name).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary).lineLimit(1); Spacer(); Text(fmt(item.amount)).font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textPrimary) } } }
             }
-        }.glassCard().frame(width: 280).frame(maxHeight: .infinity)
+        }.glassCard().frame(width: 240).frame(maxHeight: .infinity)
     }
     
     // MARK: - Category Table
@@ -123,7 +140,7 @@ struct ReportsView: View {
                             GeometryReader { geo in ZStack(alignment: .leading) { RoundedRectangle(cornerRadius: 3).fill(AppTheme.surfaceElevated).frame(height: 6); RoundedRectangle(cornerRadius: 3).fill(item.color).frame(width: geo.size.width * CGFloat(total > 0 ? item.amount / total : 0), height: 6) }.frame(height: 6).offset(y: 10) }.frame(width: 60)
                             Text(String(format: "%.0f%%", total > 0 ? (item.amount / total) * 100 : 0)).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary)
                         }.frame(width: 120, alignment: .trailing)
-                    }.padding(.vertical, 6)
+                    }.padding(.vertical, 4)
                 }
             }
         }.glassCard()
