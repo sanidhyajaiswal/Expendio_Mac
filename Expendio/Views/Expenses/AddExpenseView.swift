@@ -26,37 +26,148 @@ struct AddExpenseView: View {
     
     var body: some View {
         VStack(spacing: 0) {
-            VStack(spacing: 10) {
-                Image(systemName: "plus.circle.fill").font(.system(size: 36)).foregroundColor(themeAccent)
-                    .scaleEffect(isAnimating ? 1.0 : 0.8).animation(.spring(response: 0.5, dampingFraction: 0.6), value: isAnimating)
-                Text("New Expense").font(.system(size: 20, weight: .bold)).foregroundColor(AppTheme.textPrimary)
-            }.frame(maxWidth: .infinity).padding(.vertical, 24).background(themeAccent.opacity(0.08))
+            // Header
+            HStack {
+                Text("New Expense")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundColor(AppTheme.textPrimary)
+                Spacer()
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(AppTheme.textMuted)
+                }.buttonStyle(.plain)
+            }
+            .padding(.horizontal, 24).padding(.top, 24).padding(.bottom, 20)
             
             ScrollView {
                 VStack(spacing: 20) {
-                    formField(label: "Title", icon: "textformat") { TextField("e.g. Grocery shopping", text: $title).textFieldStyle(.plain).font(.system(size: 14)).foregroundColor(AppTheme.textPrimary) }
-                    HStack(spacing: 12) {
-                        formField(label: "Amount", icon: "indianrupeesign") { TextField("0.00", text: $amount).textFieldStyle(.plain).font(.system(size: 14)).foregroundColor(AppTheme.textPrimary) }
-                        formField(label: "Currency", icon: "dollarsign.circle") { Picker("", selection: $currency) { ForEach(currencies, id: \.self) { Text($0).tag($0) } }.labelsHidden().frame(maxWidth: .infinity, alignment: .leading) }.frame(width: 140)
+                    formField(label: "Title", icon: "textformat") { 
+                        TextField("e.g. Grocery shopping", text: $title)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 15))
+                            .foregroundColor(AppTheme.textPrimary)
                     }
-                    formField(label: "Date", icon: "calendar") { DatePicker("", selection: $date, displayedComponents: .date).labelsHidden().datePickerStyle(.field) }
-                    formField(label: "Category", icon: "tag") { Picker("", selection: $selectedCategory) { Text("Select category").tag(nil as ExpenseCategory?); ForEach(categories, id: \.id) { cat in Label(cat.name, systemImage: cat.icon).tag(cat as ExpenseCategory?) } }.labelsHidden().frame(maxWidth: .infinity, alignment: .leading) }
-                    formField(label: "Notes", icon: "note.text") { TextField("Optional notes...", text: $notes, axis: .vertical).textFieldStyle(.plain).font(.system(size: 14)).foregroundColor(AppTheme.textPrimary).lineLimit(3) }
-                }.padding(24)
+                    
+                    HStack(spacing: 12) {
+                        formField(label: "Amount", icon: "indianrupeesign") { 
+                            TextField("0.00", text: $amount)
+                                .textFieldStyle(.plain)
+                                .font(.system(size: 15))
+                                .foregroundColor(AppTheme.textPrimary)
+                        }
+                        
+                        formField(label: "Currency", icon: "dollarsign.circle", hasBackground: false) { 
+                            Menu {
+                                ForEach(currencies, id: \.self) { c in Button(c) { currency = c } }
+                            } label: {
+                                HStack {
+                                    Text(currency)
+                                        .font(.system(size: 15))
+                                        .foregroundColor(AppTheme.textPrimary)
+                                    Spacer()
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(AppTheme.textMuted)
+                                }
+                                .padding(.horizontal, 12).padding(.vertical, 10)
+                                .background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.dynamicSurfaceElevated))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        .frame(width: 140)
+                    }
+                    
+                    HStack(spacing: 12) {
+                        formField(label: "Category", icon: "tag", hasBackground: false) { 
+                            Menu {
+                                Button("Select category") { selectedCategory = nil }
+                                ForEach(categories, id: \.id) { cat in 
+                                    Button { selectedCategory = cat } label: { Label(cat.name, systemImage: cat.icon) }
+                                }
+                            } label: {
+                                HStack {
+                                    if let cat = selectedCategory {
+                                        Text(cat.name)
+                                            .font(.system(size: 15))
+                                            .foregroundColor(AppTheme.textPrimary)
+                                    } else {
+                                        Text("Select category")
+                                            .font(.system(size: 15))
+                                            .foregroundColor(AppTheme.textMuted)
+                                    }
+                                    Spacer()
+                                    Image(systemName: "chevron.up.chevron.down")
+                                        .font(.system(size: 10))
+                                        .foregroundColor(AppTheme.textMuted)
+                                }
+                                .padding(.horizontal, 12).padding(.vertical, 10)
+                                .background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.dynamicSurfaceElevated))
+                            }
+                            .buttonStyle(.plain)
+                        }
+                        
+                        formField(label: "Date", icon: "calendar") { 
+                            DatePicker("", selection: $date, displayedComponents: .date)
+                                .labelsHidden()
+                                .datePickerStyle(.compact)
+                                .environment(\.colorScheme, .dark)
+                        }
+                        .frame(maxWidth: .infinity, alignment: .leading)
+                    }
+                    
+                    formField(label: "Notes", icon: "note.text") { 
+                        TextField("Optional notes...", text: $notes, axis: .vertical)
+                            .textFieldStyle(.plain)
+                            .font(.system(size: 15))
+                            .foregroundColor(AppTheme.textPrimary)
+                            .lineLimit(3)
+                    }
+                }
+                .padding(.horizontal, 24).padding(.bottom, 24)
             }
             
+            // Buttons
             HStack(spacing: 12) {
-                Button("Cancel") { dismiss() }.font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.textSecondary).padding(.horizontal, 20).padding(.vertical, 10).background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.dynamicSurfaceElevated)).buttonStyle(.plain)
-                Spacer()
-                Button { saveExpense() } label: { HStack(spacing: 6) { Image(systemName: "checkmark"); Text("Save Expense") }.gradientButton() }.buttonStyle(.plain).disabled(title.isEmpty || amount.isEmpty).opacity(title.isEmpty || amount.isEmpty ? 0.5 : 1.0)
-            }.padding(20)
-        }.frame(width: 500, height: 580).background(AppTheme.dynamicBackground).onAppear { isAnimating = true }
+                Button { dismiss() } label: {
+                    Text("Cancel")
+                        .font(.system(size: 13, weight: .medium))
+                        .foregroundColor(AppTheme.danger)
+                        .frame(maxWidth: .infinity).padding(.vertical, 10)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.dynamicSurfaceElevated))
+                }.buttonStyle(.plain)
+
+                Button { saveExpense() } label: {
+                    Text("Save Expense")
+                        .font(.system(size: 13, weight: .semibold))
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity).padding(.vertical, 10)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(themeAccent))
+                }
+                .buttonStyle(.plain)
+                .disabled(title.isEmpty || amount.isEmpty)
+                .opacity(title.isEmpty || amount.isEmpty ? 0.5 : 1.0)
+            }
+            .padding(24)
+        }
+        .frame(width: 440, height: 500)
+        .background(AppTheme.dynamicBackground)
+        .onAppear { isAnimating = true }
     }
     
-    private func formField<Content: View>(label: String, icon: String, @ViewBuilder content: () -> Content) -> some View {
+    private func formField<Content: View>(label: String, icon: String, hasBackground: Bool = true, @ViewBuilder content: () -> Content) -> some View {
         VStack(alignment: .leading, spacing: 8) {
-            HStack(spacing: 6) { Image(systemName: icon).font(.system(size: 12)).foregroundColor(themeAccent); Text(label).font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textSecondary) }
-            content().padding(.horizontal, 12).padding(.vertical, 10).background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.dynamicSurfaceElevated).overlay(RoundedRectangle(cornerRadius: 10).stroke(AppTheme.dynamicBorder, lineWidth: 1)))
+            HStack(spacing: 6) { 
+                Image(systemName: icon).font(.system(size: 12)).foregroundColor(themeAccent)
+                Text(label).font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textSecondary) 
+            }
+            if hasBackground {
+                content()
+                    .padding(.horizontal, 12).padding(.vertical, 10)
+                    .background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.dynamicSurfaceElevated))
+            } else {
+                content()
+            }
         }
     }
     

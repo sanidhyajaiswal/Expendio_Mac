@@ -316,37 +316,17 @@ struct ContentView: View {
     private var profileSwitcherOverlay: some View {
         VStack(alignment: .leading, spacing: 2) {
             ForEach(profiles, id: \.id) { p in
-                Button {
-                    withAnimation(.easeInOut(duration: 0.15)) {
-                        activeProfileIdString = p.id.uuidString
-                        showProfileSwitcher = false
-                    }
-                } label: {
-                    HStack(spacing: 10) {
-                        ZStack {
-                            Circle().fill(Color(hex: p.colorHex).opacity(0.2)).frame(width: 26, height: 26)
-                            Text(String(p.name.prefix(1)).uppercased())
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(Color(hex: p.colorHex))
-                        }
-                        Text(p.name)
-                            .font(.system(size: 13, weight: .medium))
-                            .foregroundColor(AppTheme.textPrimary)
-                        Spacer()
-                        if p.id == activeProfile?.id {
-                            Image(systemName: "checkmark")
-                                .font(.system(size: 10, weight: .bold))
-                                .foregroundColor(themeAccent)
+                ProfileSwitcherButton(
+                    profile: p,
+                    isActive: p.id == activeProfile?.id,
+                    themeAccent: themeAccent,
+                    action: {
+                        withAnimation(.easeInOut(duration: 0.15)) {
+                            activeProfileIdString = p.id.uuidString
+                            showProfileSwitcher = false
                         }
                     }
-                    .padding(.horizontal, 12).padding(.vertical, 8)
-                    .background(
-                        RoundedRectangle(cornerRadius: 8)
-                            .fill(p.id == activeProfile?.id ? themeAccent.opacity(0.1) : Color.clear)
-                    )
-                    .contentShape(Rectangle())
-                }
-                .buttonStyle(.plain)
+                )
             }
         }
         .padding(.vertical, 6).padding(.horizontal, 4)
@@ -378,13 +358,13 @@ struct ContentView: View {
     // MARK: - Compact Gear Panel (in-app overlay)
     private var profilePanel: some View {
         VStack(alignment: .leading, spacing: 2) {
-            panelActionButton(icon: "pencil", label: "Edit Profile") {
+            PanelActionButton(icon: "pencil", label: "Edit Profile") {
                 editingProfileName = activeProfile?.name ?? ""
                 editingProfileColor = activeProfile?.colorHex ?? "#7C3AED"
                 withAnimation { showGearPanel = false }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { showEditProfileSheet = true }
             }
-            panelActionButton(icon: "person.badge.plus", label: "Add Profile") {
+            PanelActionButton(icon: "person.badge.plus", label: "Add Profile") {
                 newProfileName = ""
                 newProfileColor = "#7C3AED"
                 withAnimation { showGearPanel = false }
@@ -392,7 +372,7 @@ struct ContentView: View {
             }
             if profiles.count > 1 {
                 Divider().padding(.horizontal, 8).padding(.vertical, 2)
-                panelActionButton(icon: "trash", label: "Delete Profile", destructive: true) {
+                PanelActionButton(icon: "trash", label: "Delete Profile", destructive: true) {
                     withAnimation { showGearPanel = false }
                     DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { showDeleteProfileAlert = true }
                 }
@@ -406,25 +386,7 @@ struct ContentView: View {
         )
     }
 
-    private func panelActionButton(icon: String, label: String, destructive: Bool = false, action: @escaping () -> Void) -> some View {
-        let tint = destructive ? AppTheme.danger : AppTheme.textSecondary
-        return Button { action() } label: {
-            HStack(spacing: 10) {
-                Image(systemName: icon)
-                    .font(.system(size: 13))
-                    .foregroundColor(tint)
-                    .frame(width: 18)
-                Text(label)
-                    .font(.system(size: 13, weight: .medium))
-                    .foregroundColor(destructive ? AppTheme.danger : AppTheme.textPrimary)
-                Spacer()
-            }
-            .padding(.horizontal, 12).padding(.vertical, 8)
-            .contentShape(Rectangle())
-        }
-        .buttonStyle(.plain)
-        .padding(.horizontal, 4)
-    }
+
     
     private func sidebarButton(_ item: SidebarItem) -> some View {
         Button {
@@ -683,5 +645,87 @@ struct ProfileDialogSheet: View {
         }
         .frame(width: 360)
         .background(AppTheme.background)
+    }
+}
+
+// MARK: - Menu Button Structs
+struct PanelActionButton: View {
+    let icon: String
+    let label: String
+    var destructive: Bool = false
+    let action: () -> Void
+    
+    @State private var isHovered = false
+    
+    var body: some View {
+        let tint = destructive ? AppTheme.danger : AppTheme.textSecondary
+        Button { action() } label: {
+            HStack(spacing: 10) {
+                Image(systemName: icon)
+                    .font(.system(size: 13))
+                    .foregroundColor(tint)
+                    .frame(width: 18)
+                Text(label)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(destructive ? AppTheme.danger : AppTheme.textPrimary)
+                Spacer()
+            }
+            .padding(.horizontal, 12).padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(isHovered ? AppTheme.dynamicSurfaceElevated.opacity(0.8) : Color.clear)
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .padding(.horizontal, 4)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isHovered = hovering
+            }
+        }
+    }
+}
+
+struct ProfileSwitcherButton: View {
+    let profile: Profile
+    let isActive: Bool
+    let themeAccent: Color
+    let action: () -> Void
+    
+    @State private var isHovered = false
+    
+    var body: some View {
+        Button { action() } label: {
+            HStack(spacing: 10) {
+                ZStack {
+                    Circle().fill(Color(hex: profile.colorHex).opacity(0.2)).frame(width: 26, height: 26)
+                    Text(String(profile.name.prefix(1)).uppercased())
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(Color(hex: profile.colorHex))
+                }
+                Text(profile.name)
+                    .font(.system(size: 13, weight: .medium))
+                    .foregroundColor(AppTheme.textPrimary)
+                Spacer()
+                if isActive {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 10, weight: .bold))
+                        .foregroundColor(themeAccent)
+                }
+            }
+            .padding(.horizontal, 12).padding(.vertical, 8)
+            .background(
+                RoundedRectangle(cornerRadius: 6)
+                    .fill(isActive ? themeAccent.opacity(0.1) : (isHovered ? AppTheme.dynamicSurfaceElevated.opacity(0.5) : Color.clear))
+            )
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .onHover { hovering in
+            withAnimation(.easeInOut(duration: 0.1)) {
+                isHovered = hovering
+            }
+        }
     }
 }
