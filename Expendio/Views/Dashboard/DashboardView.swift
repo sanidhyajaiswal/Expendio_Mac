@@ -41,9 +41,15 @@ struct DashboardView: View {
     private var last30DaysData: [(Date, Double)] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
+        
+        guard let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: today) else { return [] }
+        
+        let recentExpenses = allExpenses.filter { $0.date >= thirtyDaysAgo }
+        let groupedByDay = Dictionary(grouping: recentExpenses) { calendar.startOfDay(for: $0.date) }
+        
         return (0..<30).reversed().compactMap { offset in
             guard let date = calendar.date(byAdding: .day, value: -offset, to: today) else { return nil }
-            let total = allExpenses.filter { calendar.isDate($0.date, inSameDayAs: date) }.reduce(0) { $0 + $1.amount }
+            let total = groupedByDay[date]?.reduce(0) { $0 + $1.amount } ?? 0
             return (date, total)
         }
     }

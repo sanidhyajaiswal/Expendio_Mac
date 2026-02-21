@@ -84,12 +84,19 @@ struct ExpenseListView: View {
     }
 
     private var filteredExpenses: [Expense] {
-        expenses.filter { expense in
-            let matchesSearch = searchText.isEmpty
+        let activeRange = selectedDateFilter.dateRange
+        let isSearchEmpty = searchText.isEmpty
+        let activeCategoryId = selectedCategory?.id
+        
+        return expenses.filter { expense in
+            let matchesSearch = isSearchEmpty
                 || expense.title.localizedCaseInsensitiveContains(searchText)
                 || expense.notes.localizedCaseInsensitiveContains(searchText)
-            let matchesCat = selectedCategory == nil || expense.category?.id == selectedCategory?.id
-            let matchesDate = selectedDateFilter.dateRange?.contains(expense.date) ?? true
+            
+            let matchesCat = (activeCategoryId == nil) || (expense.category?.id == activeCategoryId)
+            
+            let matchesDate = activeRange?.contains(expense.date) ?? true
+            
             return matchesSearch && matchesCat && matchesDate
         }
     }

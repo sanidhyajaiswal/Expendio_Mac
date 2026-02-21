@@ -413,7 +413,6 @@ struct ContentView: View {
                 expenseFilterDate = .allTime
             }
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { selectedItem = item }
-            contentRefreshId = UUID()
         } label: {
             HStack(spacing: 12) {
                 Image(systemName: item.icon).font(.system(size: 15, weight: .medium)).frame(width: 24)
@@ -433,7 +432,6 @@ struct ContentView: View {
     }
     
     // MARK: - Main Content
-    @State private var contentRefreshId = UUID()
     @ViewBuilder
     private func mainContent(profileId: UUID) -> some View {
         switch selectedItem {
@@ -442,19 +440,17 @@ struct ContentView: View {
                 expenseFilterCategory = cat
                 if let df = dateFilter { expenseFilterDate = df }
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { selectedItem = .expenses }
-                contentRefreshId = UUID()
-            }).id(contentRefreshId)
+            })
         case .expenses: 
-            ExpenseListView(profileId: profileId, initialCategory: expenseFilterCategory, initialDateFilter: expenseFilterDate).id(contentRefreshId)
+            ExpenseListView(profileId: profileId, initialCategory: expenseFilterCategory, initialDateFilter: expenseFilterDate)
         case .reports: 
             ReportsView(profileId: profileId, onCategorySelect: { cat, dateFilter in
                 expenseFilterCategory = cat
                 if let df = dateFilter { expenseFilterDate = df }
                 withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { selectedItem = .expenses }
-                contentRefreshId = UUID()
-            }).id(contentRefreshId)
+            })
         case .categories: 
-            CategoryManagementView(profileId: profileId).id(contentRefreshId)
+            CategoryManagementView(profileId: profileId)
         }
     }
     

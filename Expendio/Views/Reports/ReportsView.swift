@@ -221,7 +221,12 @@ struct ReportsView: View {
         case .monthly:
             let comps = c.dateComponents([.year, .month], from: currentDate)
             guard let som = c.date(from: comps), let range = c.range(of: .day, in: .month, for: som) else { return [] }
-            return range.compactMap { d -> CI? in guard let date = c.date(byAdding: .day, value: d - 1, to: som) else { return nil }; return CI(label: "\(d)", value: f.filter { c.isDate($0.date, inSameDayAs: date) }.reduce(0) { $0 + $1.amount }) }
+            let groupedByDay = Dictionary(grouping: f) { c.startOfDay(for: $0.date) }
+            return range.compactMap { d -> CI? in 
+                guard let date = c.date(byAdding: .day, value: d - 1, to: som) else { return nil }
+                let total = groupedByDay[date]?.reduce(0) { $0 + $1.amount } ?? 0
+                return CI(label: "\(d)", value: total)
+            }
         case .quarterly:
             let m = c.component(.month, from: currentDate); let y = c.component(.year, from: currentDate); let qs = ((m - 1) / 3) * 3 + 1; let mn = DateFormatter().shortMonthSymbols ?? []
             return (0..<3).compactMap { o -> CI? in let m2 = qs + o; guard let s = c.date(from: DateComponents(year: y, month: m2)), let e = c.date(byAdding: .month, value: 1, to: s) else { return nil }; return CI(label: m2 <= mn.count ? mn[m2-1] : "M\(m2)", value: f.filter { $0.date >= s && $0.date < e }.reduce(0) { $0 + $1.amount }) }
