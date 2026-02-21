@@ -32,11 +32,7 @@ struct AddExpenseView: View {
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(AppTheme.textPrimary)
                 Spacer()
-                Button { dismiss() } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 20))
-                        .foregroundColor(AppTheme.textMuted)
-                }.buttonStyle(.plain)
+                DialogCloseButton(action: { dismiss() })
             }
             .padding(.horizontal, 24).padding(.top, 24).padding(.bottom, 20)
             

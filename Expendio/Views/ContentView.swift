@@ -154,11 +154,30 @@ struct ContentView: View {
                     .background(AppTheme.dynamicBackground)
             }
 
+            if showGearPanel || showProfileSwitcher {
+                Color.black.opacity(0.001)
+                    .ignoresSafeArea()
+                    .onTapGesture {
+                        withAnimation(.easeInOut(duration: 0.15)) {
+                            showGearPanel = false
+                            showProfileSwitcher = false
+                        }
+                    }
+            }
+
             // Gear panel overlay (inside main content, bottom-left)
             if showGearPanel {
                 profilePanel
                     .fixedSize()
-                    .offset(x: 221, y: 0)
+                    .offset(x: 221, y: -8)
+                    .transition(.opacity)
+            }
+            
+            // Profile switcher overlay
+            if showProfileSwitcher {
+                profileSwitcherOverlay
+                    .frame(width: 204)
+                    .offset(x: 8, y: -64)
                     .transition(.opacity)
             }
         }
@@ -166,44 +185,32 @@ struct ContentView: View {
     
     // MARK: - Sidebar
     private func sidebar(profileId: UUID) -> some View {
-        ZStack(alignment: .bottom) {
-            VStack(spacing: 0) {
-                // Logo
-                HStack(spacing: 10) {
-                    Image(systemName: "indianrupeesign.circle.fill")
-                        .font(.system(size: 24, weight: .bold))
-                        .foregroundColor(themeAccent)
-                    
-                    Text("Expendio")
-                        .font(.system(size: 20, weight: .bold))
-                        .foregroundColor(AppTheme.textPrimary)
-                }
-                .padding(.top, 32)
-                .padding(.bottom, 40)
-
-                // Menu Items
-                VStack(spacing: 4) {
-                    ForEach(SidebarItem.allCases) { item in
-                        sidebarButton(item)
-                    }
-                }
-                .padding(.horizontal, 12)
-
-                Spacer()
-
-                // Profile card at bottom
-                profileBottomCard
+        VStack(spacing: 0) {
+            // Logo
+            HStack(spacing: 10) {
+                Image(systemName: "indianrupeesign.circle.fill")
+                    .font(.system(size: 24, weight: .bold))
+                    .foregroundColor(themeAccent)
+                
+                Text("Expendio")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(AppTheme.textPrimary)
             }
+            .padding(.top, 32)
+            .padding(.bottom, 40)
 
-            // Profile switcher overlay (appears above profile card)
-            if showProfileSwitcher {
-                VStack(spacing: 0) {
-                    Spacer()
-                    profileSwitcherOverlay
-                        .transition(.opacity)
+            // Menu Items
+            VStack(spacing: 4) {
+                ForEach(SidebarItem.allCases) { item in
+                    sidebarButton(item)
                 }
-                .padding(.bottom, 60) // offset above the profile card
             }
+            .padding(.horizontal, 12)
+
+            Spacer()
+
+            // Profile card at bottom
+            profileBottomCard
         }
         .frame(width: 220)
         .background(AppTheme.dynamicSurface) // Use dynamic surface for smooth contrast or blend natively
@@ -564,11 +571,7 @@ struct ProfileDialogSheet: View {
                     .font(.system(size: 18, weight: .bold))
                     .foregroundColor(AppTheme.textPrimary)
                 Spacer()
-                Button { onCancel() } label: {
-                    Image(systemName: "xmark.circle.fill")
-                        .font(.system(size: 20))
-                        .foregroundColor(AppTheme.textMuted)
-                }.buttonStyle(.plain)
+                DialogCloseButton(action: onCancel)
             }
             .padding(.horizontal, 24).padding(.top, 24).padding(.bottom, 20)
 
@@ -645,6 +648,23 @@ struct ProfileDialogSheet: View {
     }
 }
 
+// MARK: - Reusable UI Components
+struct DialogCloseButton: View {
+    let action: () -> Void
+    @State private var isHovered = false
+    
+    var body: some View {
+        Button { action() } label: {
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 20))
+                .foregroundColor(isHovered ? AppTheme.danger : AppTheme.textMuted)
+                .background(Circle().fill(isHovered ? AppTheme.danger.opacity(0.15) : Color.clear))
+        }
+        .buttonStyle(.plain)
+        .onHover { h in withAnimation(.easeInOut(duration: 0.1)) { isHovered = h } }
+    }
+}
+
 // MARK: - Menu Button Structs
 struct PanelActionButton: View {
     let icon: String
@@ -670,7 +690,7 @@ struct PanelActionButton: View {
             .padding(.horizontal, 12).padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(isHovered ? AppTheme.dynamicSurfaceElevated.opacity(0.8) : Color.clear)
+                    .fill(isHovered ? AppTheme.textMuted.opacity(0.15) : Color.clear)
             )
             .contentShape(Rectangle())
         }
@@ -714,7 +734,7 @@ struct ProfileSwitcherButton: View {
             .padding(.horizontal, 12).padding(.vertical, 8)
             .background(
                 RoundedRectangle(cornerRadius: 6)
-                    .fill(isActive ? themeAccent.opacity(0.1) : (isHovered ? AppTheme.dynamicSurfaceElevated.opacity(0.5) : Color.clear))
+                    .fill(isActive ? themeAccent.opacity(0.1) : (isHovered ? AppTheme.textMuted.opacity(0.15) : Color.clear))
             )
             .contentShape(Rectangle())
         }
