@@ -14,6 +14,7 @@
 		991986B22F49D6700060D33E /* ProfileSwitcherButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986AF2F49D6700060D33E /* ProfileSwitcherButton.swift */; };
 		991986B32F49D6700060D33E /* CategoryTableRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986AC2F49D6700060D33E /* CategoryTableRow.swift */; };
 		991986B42F49D6700060D33E /* PanelActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986AE2F49D6700060D33E /* PanelActionButton.swift */; };
+		991986B62F49DBDE0060D33E /* SharedFormatters.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986B52F49DBDE0060D33E /* SharedFormatters.swift */; };
 		FA0000000000000000000101 /* ExpendioApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000001 /* ExpendioApp.swift */; };
 		FA0000000000000000000102 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000002 /* Expense.swift */; };
 		FA0000000000000000000103 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000003 /* Category.swift */; };
@@ -38,6 +39,7 @@
 		991986AD2F49D6700060D33E /* DialogCloseButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DialogCloseButton.swift; sourceTree = "<group>"; };
 		991986AE2F49D6700060D33E /* PanelActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PanelActionButton.swift; sourceTree = "<group>"; };
 		991986AF2F49D6700060D33E /* ProfileSwitcherButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileSwitcherButton.swift; sourceTree = "<group>"; };
+		991986B52F49DBDE0060D33E /* SharedFormatters.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedFormatters.swift; sourceTree = "<group>"; };
 		FA0000000000000000000001 /* ExpendioApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpendioApp.swift; sourceTree = "<group>"; };
 		FA0000000000000000000002 /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
 		FA0000000000000000000003 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
@@ -117,6 +119,7 @@
 		FC0000000000000000000004 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				991986B52F49DBDE0060D33E /* SharedFormatters.swift */,
 				991986A62F49B1510060D33E /* DataTransferService.swift */,
 				FA0000000000000000000004 /* SplitwiseImporter.swift */,
 			);
@@ -262,6 +265,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				991986B62F49DBDE0060D33E /* SharedFormatters.swift in Sources */,
 				991986A72F49B1510060D33E /* DataTransferService.swift in Sources */,
 				FA0000000000000000000101 /* ExpendioApp.swift in Sources */,
 				FA0000000000000000000102 /* Expense.swift in Sources */,

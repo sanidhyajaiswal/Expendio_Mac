@@ -319,10 +319,10 @@ struct ReportsView: View {
                 return CI(label: "\(d)", value: total)
             }
         case .quarterly:
-            let m = c.component(.month, from: currentDate); let y = c.component(.year, from: currentDate); let qs = ((m - 1) / 3) * 3 + 1; let mn = DateFormatter().shortMonthSymbols ?? []
+            let m = c.component(.month, from: currentDate); let y = c.component(.year, from: currentDate); let qs = ((m - 1) / 3) * 3 + 1; let mn = SharedFormatters.shortMonthSymbols
             return (0..<3).compactMap { o -> CI? in let m2 = qs + o; guard let s = c.date(from: DateComponents(year: y, month: m2)), let e = c.date(byAdding: .month, value: 1, to: s) else { return nil }; return CI(label: m2 <= mn.count ? mn[m2-1] : "M\(m2)", value: f.filter { $0.date >= s && $0.date < e }.reduce(0) { $0 + $1.amount }) }
         case .yearly:
-            let y = c.component(.year, from: currentDate); let mn = DateFormatter().shortMonthSymbols ?? []
+            let y = c.component(.year, from: currentDate); let mn = SharedFormatters.shortMonthSymbols
             return (1...12).compactMap { m -> CI? in guard let s = c.date(from: DateComponents(year: y, month: m)), let e = c.date(byAdding: .month, value: 1, to: s) else { return nil }; return CI(label: m <= mn.count ? mn[m-1] : "M\(m)", value: f.filter { $0.date >= s && $0.date < e }.reduce(0) { $0 + $1.amount }) }
         }
     }
@@ -340,10 +340,10 @@ struct ReportsView: View {
         }
     }
     
-    private var periodTitle: String { let c = Calendar.current; let f = DateFormatter(); switch selectedTab { case .monthly: f.dateFormat = "MMMM yyyy"; return f.string(from: currentDate); case .quarterly: let m = c.component(.month, from: currentDate); let y = c.component(.year, from: currentDate); return "Q\((m-1)/3+1) \(y)"; case .yearly: f.dateFormat = "yyyy"; return f.string(from: currentDate) } }
+    private var periodTitle: String { let c = Calendar.current; switch selectedTab { case .monthly: return SharedFormatters.dateFormatter(format: "MMMM yyyy").string(from: currentDate); case .quarterly: let m = c.component(.month, from: currentDate); let y = c.component(.year, from: currentDate); return "Q\((m-1)/3+1) \(y)"; case .yearly: return SharedFormatters.dateFormatter(format: "yyyy").string(from: currentDate) } }
     private var chartTitle: String { switch selectedTab { case .monthly: return "Daily Spending"; case .quarterly: return "Monthly Comparison"; case .yearly: return "Monthly Trend" } }
     private func nav(_ d: Int) { let c = Calendar.current; withAnimation { switch selectedTab { case .monthly: currentDate = c.date(byAdding: .month, value: d, to: currentDate) ?? currentDate; case .quarterly: currentDate = c.date(byAdding: .month, value: 3*d, to: currentDate) ?? currentDate; case .yearly: currentDate = c.date(byAdding: .year, value: d, to: currentDate) ?? currentDate } } }
     private func tabIcon(_ t: ReportTab) -> String { switch t { case .monthly: return "calendar"; case .quarterly: return "calendar.badge.clock"; case .yearly: return "chart.line.uptrend.xyaxis" } }
     private var empty: some View { VStack(spacing: 12) { Image(systemName: "chart.bar.xaxis").font(.system(size: 30)).foregroundColor(AppTheme.textMuted); Text("No data for this period").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary) }.frame(maxWidth: .infinity).frame(height: 200) }
-    private func fmt(_ v: Double) -> String { let f = NumberFormatter(); f.numberStyle = .currency; f.currencyCode = "INR"; f.maximumFractionDigits = 0; return f.string(from: NSNumber(value: v)) ?? "₹\(Int(v))" }
+    private func fmt(_ v: Double) -> String { let f = SharedFormatters.currencyFormatter(for: "INR", maximumFractionDigits: 0); return f.string(from: NSNumber(value: v)) ?? "₹\(Int(v))" }
 }

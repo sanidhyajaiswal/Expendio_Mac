@@ -266,7 +266,7 @@ struct DashboardView: View {
         VStack(spacing: 12) { Image(systemName: "chart.bar.xaxis").font(.system(size: 30)).foregroundColor(AppTheme.textMuted); Text("No data yet").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary) }.frame(maxWidth: .infinity).frame(height: 180)
     }
     
-    private func fmt(_ v: Double) -> String { let f = NumberFormatter(); f.numberStyle = .currency; f.currencyCode = "INR"; f.maximumFractionDigits = 0; return f.string(from: NSNumber(value: v)) ?? "₹\(Int(v))" }
+    private func fmt(_ v: Double) -> String { let f = SharedFormatters.currencyFormatter(for: "INR", maximumFractionDigits: 0); return f.string(from: NSNumber(value: v)) ?? "₹\(Int(v))" }
     
     private func colorFor(_ name: String) -> Color {
         categories.first(where: { $0.name == name })?.color ?? AppTheme.chartColors[abs(name.hashValue) % AppTheme.chartColors.count]

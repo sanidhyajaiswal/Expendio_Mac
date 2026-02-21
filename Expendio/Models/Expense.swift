@@ -36,15 +36,12 @@ final class Expense {
     }
     
     var formattedAmount: String {
-        let formatter = NumberFormatter()
-        formatter.numberStyle = .currency
-        formatter.currencyCode = currency
+        let formatter = SharedFormatters.currencyFormatter(for: currency)
         return formatter.string(from: NSNumber(value: amount)) ?? "\(currency) \(amount)"
     }
     
     var monthKey: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy-MM"
+        let formatter = SharedFormatters.dateFormatter(format: "yyyy-MM")
         return formatter.string(from: date)
     }
     
@@ -57,8 +54,7 @@ final class Expense {
     }
     
     var yearKey: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "yyyy"
+        let formatter = SharedFormatters.dateFormatter(format: "yyyy")
         return formatter.string(from: date)
     }
 }
