@@ -41,6 +41,7 @@ struct ExpenseListView: View {
     @State private var selectedCategory: ExpenseCategory?
     @State private var selectedDateFilter: DateFilter = .allTime
     @State private var showAddSheet = false
+    @State private var showImportSheet = false
     @State private var editingExpenseId: UUID?
     @State private var hoveredExpenseId: UUID?
     @State private var editTitle = ""
@@ -83,6 +84,7 @@ struct ExpenseListView: View {
         }
         .background(AppTheme.dynamicBackground)
         .sheet(isPresented: $showAddSheet) { AddExpenseView(profileId: profileId) }
+        .sheet(isPresented: $showImportSheet) { ImportView(profileId: profileId) }
         .confirmationDialog(
             "Delete \(selectedIds.count) expense\(selectedIds.count == 1 ? "" : "s")?",
             isPresented: $showDeleteSelectedConfirm,
@@ -177,6 +179,14 @@ struct ExpenseListView: View {
                 }.buttonStyle(.plain)
             }
             
+            Button { showImportSheet = true } label: {
+                HStack(spacing: 6) { Image(systemName: "square.and.arrow.down").font(.system(size: 12, weight: .bold)); Text("Import") }
+                    .font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.textPrimary)
+                    .padding(.horizontal, 16)
+                    .frame(height: 36)
+                    .background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.dynamicSurfaceElevated))
+            }.buttonStyle(.plain)
+
             Button { showAddSheet = true } label: {
                 HStack(spacing: 6) { Image(systemName: "plus").font(.system(size: 12, weight: .bold)); Text("Add") }
                     .font(.system(size: 13, weight: .medium)).foregroundColor(.white)

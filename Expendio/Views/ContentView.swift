@@ -6,7 +6,6 @@ enum SidebarItem: String, CaseIterable, Identifiable {
     case expenses = "Expenses"
     case reports = "Reports"
     case categories = "Categories"
-    case importCSV = "Import"
     
     var id: String { rawValue }
     
@@ -16,7 +15,6 @@ enum SidebarItem: String, CaseIterable, Identifiable {
         case .expenses: return "list.bullet.rectangle.fill"
         case .reports: return "chart.bar.fill"
         case .categories: return "tag.fill"
-        case .importCSV: return "square.and.arrow.down.fill"
         }
     }
 }
@@ -419,7 +417,6 @@ struct ContentView: View {
         case .expenses: ExpenseListView(profileId: profileId).id(contentRefreshId)
         case .reports: ReportsView(profileId: profileId).id(contentRefreshId)
         case .categories: CategoryManagementView(profileId: profileId).id(contentRefreshId)
-        case .importCSV: ImportView(profileId: profileId).id(contentRefreshId)
         }
     }
     

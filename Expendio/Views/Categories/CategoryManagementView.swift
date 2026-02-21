@@ -66,37 +66,41 @@ struct CategoryManagementView: View {
     }
     
     private func categoryCard(_ cat: ExpenseCategory) -> some View {
-        VStack(alignment: .leading, spacing: 14) {
-            HStack(spacing: 12) {
-                ZStack { 
-                    RoundedRectangle(cornerRadius: 10).fill(cat.color.opacity(0.15)).frame(width: 40, height: 40)
-                    Image(systemName: cat.icon).font(.system(size: 18)).foregroundColor(cat.color) 
-                }
-                VStack(alignment: .leading, spacing: 3) {
-                    Text(cat.name).font(.system(size: 15, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
-                    Text("\(cat.expenses.count) expenses").font(.system(size: 12)).foregroundColor(AppTheme.textSecondary)
-                }
-                Spacer()
-                if hoveredCategoryId == cat.id {
-                    HStack(spacing: 8) {
-                        Button { editingCategory = cat } label: { 
-                            Image(systemName: "pencil")
-                                .font(.system(size: 13))
-                                .foregroundColor(AppTheme.textSecondary)
-                                .frame(width: 32, height: 32)
-                                .background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.dynamicSurfaceElevated))
-                        }.buttonStyle(.plain)
-                        Button { withAnimation { modelContext.delete(cat); try? modelContext.save() } } label: { 
-                            Image(systemName: "trash")
-                                .font(.system(size: 13))
-                                .foregroundColor(AppTheme.danger)
-                                .frame(width: 32, height: 32)
-                                .background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.danger.opacity(0.1))) 
-                        }.buttonStyle(.plain)
-                    }.transition(.opacity)
-                }
+        HStack(spacing: 12) {
+            ZStack { 
+                RoundedRectangle(cornerRadius: 10).fill(cat.color.opacity(0.15)).frame(width: 40, height: 40)
+                Image(systemName: cat.icon).font(.system(size: 18)).foregroundColor(cat.color) 
             }
-        }.padding(16)
+            VStack(alignment: .leading, spacing: 3) {
+                Text(cat.name).font(.system(size: 15, weight: .semibold)).foregroundColor(AppTheme.textPrimary).lineLimit(1)
+                Text("\(cat.expenses.count) expenses").font(.system(size: 12)).foregroundColor(AppTheme.textSecondary).lineLimit(1)
+            }
+            Spacer(minLength: 0)
+        }
+        .padding(16)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .overlay(alignment: .trailing) {
+            if hoveredCategoryId == cat.id {
+                HStack(spacing: 8) {
+                    Button { editingCategory = cat } label: { 
+                        Image(systemName: "pencil")
+                            .font(.system(size: 13))
+                            .foregroundColor(AppTheme.textSecondary)
+                            .frame(width: 32, height: 32)
+                            .background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.dynamicSurfaceElevated))
+                    }.buttonStyle(.plain)
+                    Button { withAnimation { modelContext.delete(cat); try? modelContext.save() } } label: { 
+                        Image(systemName: "trash")
+                            .font(.system(size: 13))
+                            .foregroundColor(AppTheme.danger)
+                            .frame(width: 32, height: 32)
+                            .background(RoundedRectangle(cornerRadius: 8).fill(AppTheme.danger.opacity(0.1))) 
+                    }.buttonStyle(.plain)
+                }
+                .padding(.trailing, 16)
+                .transition(.opacity)
+            }
+        }
         .background(RoundedRectangle(cornerRadius: 12).fill(hoveredCategoryId == cat.id ? AppTheme.dynamicSurfaceElevated : Color.clear))
         .onHover { h in withAnimation(.easeInOut(duration: 0.15)) { hoveredCategoryId = h ? cat.id : nil } }
     }

@@ -5,6 +5,7 @@ import UniformTypeIdentifiers
 struct ImportView: View {
     let profileId: UUID
     @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
     @Query private var categories: [ExpenseCategory]
     @Query private var profiles: [Profile]
     @Environment(\.themeAccent) private var themeAccent
@@ -14,7 +15,6 @@ struct ImportView: View {
     @State private var importStatus: ImportStatus = .idle
     @State private var errorMessage: String?
     @State private var importedCount = 0
-    @State private var dashOffset: CGFloat = 0
     
     enum ImportStatus { case idle, previewing, importing, done, error }
     
@@ -27,32 +27,46 @@ struct ImportView: View {
     var body: some View {
         VStack(spacing: 0) {
             HStack {
-                VStack(alignment: .leading, spacing: 4) {
-                    Text("Import").font(.system(size: 28, weight: .bold)).foregroundColor(AppTheme.textPrimary)
-                    Text("Import expenses from Splitwise CSV").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary)
-                }; Spacer()
-            }.padding(.horizontal, 32).padding(.top, 28).padding(.bottom, 24)
+                Text("Import CSV")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(AppTheme.textPrimary)
+                Spacer()
+                Button { dismiss() } label: {
+                    Image(systemName: "xmark.circle.fill")
+                        .font(.system(size: 20))
+                        .foregroundColor(AppTheme.textMuted)
+                }.buttonStyle(.plain)
+            }
+            .padding(.horizontal, 24).padding(.top, 24).padding(.bottom, 20)
             
-            ScrollView {
+            if importStatus == .previewing {
+                ScrollView {
+                    VStack(spacing: 20) {
+                        if let err = errorMessage { errorBanner(err) }
+                        previewSection
+                    }.padding(.horizontal, 24).padding(.bottom, 24).frame(maxWidth: .infinity)
+                }
+            } else {
                 VStack(spacing: 20) {
                     if importStatus == .idle || importStatus == .error { dropZone }
                     if let err = errorMessage { errorBanner(err) }
-                    if importStatus == .previewing { previewSection }
                     if importStatus == .done { successBanner }
-                }.padding(.horizontal, 32).padding(.bottom, 32).frame(maxWidth: .infinity)
+                }.padding(.horizontal, 24).padding(.bottom, 24).frame(maxWidth: .infinity, maxHeight: .infinity)
             }
-        }.background(AppTheme.dynamicBackground)
+        }.frame(width: 440, height: 400).background(AppTheme.dynamicBackground)
     }
     
     private var dropZone: some View {
         VStack(spacing: 20) {
-            Image(systemName: "square.and.arrow.down.fill").font(.system(size: 48)).foregroundColor(isDragOver ? themeAccent : AppTheme.textMuted).scaleEffect(isDragOver ? 1.15 : 1.0).animation(.spring(response: 0.3), value: isDragOver)
-            VStack(spacing: 6) { Text("Drop Splitwise CSV here").font(.system(size: 18, weight: .semibold)).foregroundColor(AppTheme.textPrimary); Text("or click to browse").font(.system(size: 14)).foregroundColor(AppTheme.textSecondary) }
+            Image(systemName: "square.and.arrow.down.fill").font(.system(size: 40)).foregroundColor(isDragOver ? themeAccent : AppTheme.textMuted).scaleEffect(isDragOver ? 1.15 : 1.0).animation(.spring(response: 0.3), value: isDragOver)
+            VStack(spacing: 6) { Text("Drop Splitwise CSV here").font(.system(size: 16, weight: .semibold)).foregroundColor(AppTheme.textPrimary); Text("or click to browse").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary) }
             Button { openFilePicker() } label: { HStack(spacing: 6) { Image(systemName: "folder"); Text("Browse Files") }.gradientButton() }.buttonStyle(.plain)
-        }.frame(maxWidth: .infinity).frame(height: 260)
-        .background(RoundedRectangle(cornerRadius: 20).fill(isDragOver ? themeAccent.opacity(0.05) : AppTheme.surface.opacity(0.5)).overlay(RoundedRectangle(cornerRadius: 20).strokeBorder(style: StrokeStyle(lineWidth: 2, dash: [10, 6], dashPhase: dashOffset)).foregroundStyle(isDragOver ? themeAccent : AppTheme.border)))
+        }.frame(maxWidth: .infinity, maxHeight: .infinity)
+        .background(
+            RoundedRectangle(cornerRadius: 16).fill(isDragOver ? themeAccent.opacity(0.05) : AppTheme.surface.opacity(0.5))
+                .overlay(RoundedRectangle(cornerRadius: 16).strokeBorder(style: StrokeStyle(lineWidth: 1.5, dash: [6, 4])).foregroundStyle(isDragOver ? themeAccent : AppTheme.border))
+        )
         .onDrop(of: [UTType.commaSeparatedText, UTType.fileURL], isTargeted: $isDragOver) { providers in handleDrop(providers); return true }
-        .onAppear { withAnimation(.linear(duration: 8).repeatForever(autoreverses: false)) { dashOffset = 32 } }
     }
     
     private var previewSection: some View {
