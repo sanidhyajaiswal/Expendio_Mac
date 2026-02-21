@@ -1,5 +1,6 @@
 import SwiftUI
 import SwiftData
+import UniformTypeIdentifiers
 
 enum SidebarItem: String, CaseIterable, Identifiable {
     case dashboard = "Dashboard"
@@ -26,6 +27,7 @@ struct ContentView: View {
     @Environment(\.modelContext) private var modelContext
     @Query private var profiles: [Profile]
     @AppStorage("activeProfileId") private var activeProfileIdString: String = ""
+    @State private var showDataTransferDialog = false
     // Computed directly (not from environment — ContentView is the source of truth)
     private var themeAccent: Color { Color(hex: activeProfile?.colorHex ?? "#7C3AED") }
     
@@ -57,6 +59,9 @@ struct ContentView: View {
         }
         .sheet(isPresented: $showProfileSheet) {
             ProfileManagementView(activeProfileIdString: $activeProfileIdString)
+        }
+        .sheet(isPresented: $showDataTransferDialog) {
+            DataTransferDialog()
         }
     }
     
@@ -375,6 +380,11 @@ struct ContentView: View {
                 withAnimation { showGearPanel = false }
                 DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { showAddProfileSheet = true }
             }
+            Divider().padding(.horizontal, 8).padding(.vertical, 2)
+            PanelActionButton(icon: "arrow.triangle.2.circlepath", label: "Data Transfer") {
+                withAnimation { showGearPanel = false }
+                DispatchQueue.main.asyncAfter(deadline: .now() + 0.05) { showDataTransferDialog = true }
+            }
             if profiles.count > 1 {
                 Divider().padding(.horizontal, 8).padding(.vertical, 2)
                 PanelActionButton(icon: "trash", label: "Delete Profile", destructive: true) {
@@ -666,6 +676,191 @@ struct ProfileDialogSheet: View {
         }
         .frame(width: 360)
         .background(AppTheme.background)
+    }
+}
+
+// MARK: - Data Transfer Dialog
+struct DataTransferDialog: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    @Environment(\.themeAccent) private var themeAccent
+    
+    @State private var isExporting = false
+    @State private var isImporting = false
+    @State private var showSuccessAlert = false
+    @State private var showErrorAlert = false
+    @State private var alertMessage = ""
+    @State private var generatedExportData: Data? = nil
+    @State private var showFileExporter = false
+    @State private var showFileImporter = false
+    
+    // For file exporter
+    struct JSONDocument: FileDocument {
+        static var readableContentTypes: [UTType] { [.json] }
+        var data: Data
+        init(data: Data) { self.data = data }
+        init(configuration: ReadConfiguration) throws {
+            guard let data = configuration.file.regularFileContents else {
+                throw CocoaError(.fileReadCorruptFile)
+            }
+            self.data = data
+        }
+        func fileWrapper(configuration: WriteConfiguration) throws -> FileWrapper {
+            return FileWrapper(regularFileWithContents: data)
+        }
+    }
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            HStack {
+                Text("Data Transfer")
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundColor(AppTheme.textPrimary)
+                Spacer()
+                DialogCloseButton(action: { dismiss() })
+            }
+            .padding(24)
+            
+            VStack(spacing: 24) {
+                // Export Section
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "square.and.arrow.up.fill").foregroundColor(themeAccent)
+                        Text("Export App Data").font(.system(size: 16, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
+                    }
+                    Text("Save all your profiles, categories, and expenses to a single JSON file. This file can be used to restore your data on another device.")
+                        .font(.system(size: 13))
+                        .foregroundColor(AppTheme.textSecondary)
+                    
+                    Button {
+                        exportData()
+                    } label: {
+                        HStack {
+                            if isExporting {
+                                ProgressView().controlSize(.small).padding(.trailing, 4)
+                            }
+                            Text("Export to File").font(.system(size: 13, weight: .semibold))
+                        }
+                        .foregroundColor(.white)
+                        .frame(maxWidth: .infinity).padding(.vertical, 10)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(themeAccent))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isExporting)
+                }
+                .padding(20)
+                .background(RoundedRectangle(cornerRadius: 12).fill(AppTheme.surfaceElevated))
+                
+                // Import Section
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "square.and.arrow.down.fill").foregroundColor(AppTheme.danger)
+                        Text("Import App Data").font(.system(size: 16, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
+                    }
+                    Text("Restore data from a previously exported JSON file. Warning: This will completely replace all current profiles, categories, and expenses on this device.")
+                        .font(.system(size: 13))
+                        .foregroundColor(AppTheme.textSecondary)
+                    
+                    Button {
+                        showFileImporter = true
+                    } label: {
+                        HStack {
+                            if isImporting {
+                                ProgressView().controlSize(.small).padding(.trailing, 4)
+                            }
+                            Text("Import from File").font(.system(size: 13, weight: .semibold))
+                        }
+                        .foregroundColor(AppTheme.danger)
+                        .frame(maxWidth: .infinity).padding(.vertical, 10)
+                        .background(RoundedRectangle(cornerRadius: 10).fill(AppTheme.danger.opacity(0.15)))
+                    }
+                    .buttonStyle(.plain)
+                    .disabled(isImporting)
+                }
+                .padding(20)
+                .background(RoundedRectangle(cornerRadius: 12).fill(AppTheme.surfaceElevated))
+            }
+            .padding(.horizontal, 24).padding(.bottom, 24)
+        }
+        .frame(width: 440)
+        .background(AppTheme.background)
+        .fileExporter(
+            isPresented: $showFileExporter,
+            document: JSONDocument(data: generatedExportData ?? Data()),
+            contentType: .json,
+            defaultFilename: "Expendio_Backup_\(Date().formatted(.iso8601.year().month().day().dateSeparator(.dash)))"
+        ) { result in
+            isExporting = false
+            switch result {
+            case .success:
+                alertMessage = "Data exported successfully!"
+                showSuccessAlert = true
+                generatedExportData = nil
+            case .failure(let error):
+                alertMessage = "Export failed: \(error.localizedDescription)"
+                showErrorAlert = true
+                generatedExportData = nil
+            }
+        }
+        .fileImporter(
+            isPresented: $showFileImporter,
+            allowedContentTypes: [.json],
+            allowsMultipleSelection: false
+        ) { result in
+            switch result {
+            case .success(let urls):
+                guard let url = urls.first else { return }
+                importData(from: url)
+            case .failure(let error):
+                alertMessage = "Import failed: \(error.localizedDescription)"
+                showErrorAlert = true
+            }
+        }
+        .alert("Success", isPresented: $showSuccessAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(alertMessage)
+        }
+        .alert("Error", isPresented: $showErrorAlert) {
+            Button("OK", role: .cancel) { }
+        } message: {
+            Text(alertMessage)
+        }
+    }
+    
+    private func exportData() {
+        isExporting = true
+        do {
+            generatedExportData = try DataTransferService.shared.exportData(from: modelContext)
+            showFileExporter = true
+        } catch {
+            isExporting = false
+            alertMessage = "Failed to generate export data: \(error.localizedDescription)"
+            showErrorAlert = true
+        }
+    }
+    
+    private func importData(from url: URL) {
+        isImporting = true
+        
+        let shouldStopAccessing = url.startAccessingSecurityScopedResource()
+        defer {
+            if shouldStopAccessing {
+                url.stopAccessingSecurityScopedResource()
+            }
+        }
+        
+        do {
+            let data = try Data(contentsOf: url)
+            try DataTransferService.shared.importData(from: data, into: modelContext)
+            alertMessage = "Data imported successfully!"
+            showSuccessAlert = true
+            isImporting = false
+        } catch {
+            isImporting = false
+            alertMessage = "Failed to import data: \(error.localizedDescription)"
+            showErrorAlert = true
+        }
     }
 }
 

@@ -7,23 +7,25 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		FA0000000000000000000101 /* ExpendioApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000001; };
-		FA0000000000000000000102 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000002; };
-		FA0000000000000000000103 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000003; };
-		FA0000000000000000000104 /* SplitwiseImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000004; };
-		FA0000000000000000000105 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000005; };
-		FA0000000000000000000106 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000006; };
-		FA0000000000000000000107 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007; };
-		FA0000000000000000000108 /* ExpenseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000008; };
-		FA0000000000000000000109 /* AddExpenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009; };
-		FA000000000000000000010A /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000A; };
-		FA000000000000000000010B /* CategoryManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000B; };
-		FA000000000000000000010C /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000C; };
-		FA000000000000000000010D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000D; };
-		FA000000000000000000010E /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000010; };
+		991986A72F49B1510060D33E /* DataTransferService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 991986A62F49B1510060D33E /* DataTransferService.swift */; };
+		FA0000000000000000000101 /* ExpendioApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000001 /* ExpendioApp.swift */; };
+		FA0000000000000000000102 /* Expense.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000002 /* Expense.swift */; };
+		FA0000000000000000000103 /* Category.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000003 /* Category.swift */; };
+		FA0000000000000000000104 /* SplitwiseImporter.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000004 /* SplitwiseImporter.swift */; };
+		FA0000000000000000000105 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000005 /* Theme.swift */; };
+		FA0000000000000000000106 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000006 /* ContentView.swift */; };
+		FA0000000000000000000107 /* DashboardView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000007 /* DashboardView.swift */; };
+		FA0000000000000000000108 /* ExpenseListView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000008 /* ExpenseListView.swift */; };
+		FA0000000000000000000109 /* AddExpenseView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000009 /* AddExpenseView.swift */; };
+		FA000000000000000000010A /* ReportsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000A /* ReportsView.swift */; };
+		FA000000000000000000010B /* CategoryManagementView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000B /* CategoryManagementView.swift */; };
+		FA000000000000000000010C /* ImportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000C /* ImportView.swift */; };
+		FA000000000000000000010D /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FA000000000000000000000D /* Assets.xcassets */; };
+		FA000000000000000000010E /* Profile.swift in Sources */ = {isa = PBXBuildFile; fileRef = FA0000000000000000000010 /* Profile.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		991986A62F49B1510060D33E /* DataTransferService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DataTransferService.swift; sourceTree = "<group>"; };
 		FA0000000000000000000001 /* ExpendioApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExpendioApp.swift; sourceTree = "<group>"; };
 		FA0000000000000000000002 /* Expense.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Expense.swift; sourceTree = "<group>"; };
 		FA0000000000000000000003 /* Category.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Category.swift; sourceTree = "<group>"; };
@@ -53,7 +55,7 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
-		FC0000000000000000000001 /* Root */ = {
+		FC0000000000000000000001 = {
 			isa = PBXGroup;
 			children = (
 				FC0000000000000000000002 /* Expendio */,
@@ -88,6 +90,7 @@
 		FC0000000000000000000004 /* Services */ = {
 			isa = PBXGroup;
 			children = (
+				991986A62F49B1510060D33E /* DataTransferService.swift */,
 				FA0000000000000000000004 /* SplitwiseImporter.swift */,
 			);
 			path = Services;
@@ -206,7 +209,7 @@
 				en,
 				Base,
 			);
-			mainGroup = FC0000000000000000000001 /* Root */;
+			mainGroup = FC0000000000000000000001;
 			productRefGroup = FC000000000000000000000C /* Products */;
 			projectDirPath = "";
 			projectRoot = "";
@@ -232,6 +235,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				991986A72F49B1510060D33E /* DataTransferService.swift in Sources */,
 				FA0000000000000000000101 /* ExpendioApp.swift in Sources */,
 				FA0000000000000000000102 /* Expense.swift in Sources */,
 				FA0000000000000000000103 /* Category.swift in Sources */,
