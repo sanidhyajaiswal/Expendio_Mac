@@ -13,9 +13,13 @@ struct ReportsView: View {
     @State private var selectedChartType: ChartType = .bar
     @State private var currentDate = Date()
     @Environment(\.themeAccent) private var themeAccent
+    var onCategorySelect: ((ExpenseCategory?, DateFilter?) -> Void)? = nil
     
-    init(profileId: UUID) {
+    @State private var selectedPieAmount: Double?
+    
+    init(profileId: UUID, onCategorySelect: ((ExpenseCategory?, DateFilter?) -> Void)? = nil) {
         self.profileId = profileId
+        self.onCategorySelect = onCategorySelect
         let pid = profileId
         _allExpenses = Query(filter: #Predicate<Expense> { $0.profileId == pid }, sort: \Expense.date, order: .reverse)
         _categories = Query(filter: #Predicate<ExpenseCategory> { $0.profileId == pid })
@@ -115,9 +119,31 @@ struct ReportsView: View {
             Text("By Category").font(.system(size: 16, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
             let cd = catData()
             if cd.isEmpty { empty } else {
-                Chart(cd, id: \.name) { item in SectorMark(angle: .value("Amount", item.amount), innerRadius: .ratio(0.55), angularInset: 2).foregroundStyle(item.color).cornerRadius(4) }.frame(minHeight: 140)
+                Chart(cd, id: \.name) { item in SectorMark(angle: .value("Amount", item.amount), innerRadius: .ratio(0.55), angularInset: 2).foregroundStyle(item.color).cornerRadius(4) }
+                .frame(minHeight: 140)
+                .chartAngleSelection(value: $selectedPieAmount)
+                .onTapGesture {
+                    if let newValue = selectedPieAmount {
+                        var cumulative = 0.0
+                        for item in cd {
+                            cumulative += item.amount
+                            if newValue <= cumulative {
+                                if let cat = categories.first(where: { $0.name == item.name }) {
+                                    onCategorySelect?(cat, dateFilter())
+                                }
+                                break
+                            }
+                        }
+                    }
+                }
                 Spacer(minLength: 0)
-                VStack(spacing: 6) { ForEach(Array(cd.prefix(6).enumerated()), id: \.element.name) { _, item in HStack(spacing: 8) { Circle().fill(item.color).frame(width: 8, height: 8); Text(item.name).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary).lineLimit(1); Spacer(); Text(fmt(item.amount)).font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textPrimary) } } }
+                VStack(spacing: 2) { 
+                    ForEach(Array(cd.prefix(6).enumerated()), id: \.element.name) { _, item in 
+                        ReportsCategoryRow(name: item.name, color: item.color, amount: fmt(item.amount)) {
+                            if let cat = categories.first(where: { $0.name == item.name }) { onCategorySelect?(cat, dateFilter()) }
+                        }
+                    } 
+                }
             }
         }.glassCard().frame(width: 240).frame(maxHeight: .infinity)
     }
@@ -131,16 +157,12 @@ struct ReportsView: View {
             else {
                 HStack { Text("CATEGORY").frame(maxWidth: .infinity, alignment: .leading); Text("COUNT").frame(width: 100, alignment: .trailing); Text("AMOUNT").frame(width: 120, alignment: .trailing); Text("% OF TOTAL").frame(width: 120, alignment: .trailing) }.font(.system(size: 11, weight: .semibold)).foregroundColor(AppTheme.textMuted).padding(.bottom, 4)
                 Divider().overlay(AppTheme.border.opacity(0.3))
-                ForEach(cd, id: \.name) { item in
-                    HStack {
-                        HStack(spacing: 10) { ZStack { RoundedRectangle(cornerRadius: 8).fill(item.color.opacity(0.15)).frame(width: 32, height: 32); Image(systemName: item.icon).font(.system(size: 14)).foregroundColor(item.color) }; Text(item.name).font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.textPrimary) }.frame(maxWidth: .infinity, alignment: .leading)
-                        Text("\(item.count)").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary).frame(width: 100, alignment: .trailing)
-                        Text(fmt(item.amount)).font(.system(size: 13, weight: .semibold)).foregroundColor(AppTheme.textPrimary).frame(width: 120, alignment: .trailing)
-                        HStack(spacing: 8) {
-                            GeometryReader { geo in ZStack(alignment: .leading) { RoundedRectangle(cornerRadius: 3).fill(AppTheme.surfaceElevated).frame(height: 6); RoundedRectangle(cornerRadius: 3).fill(item.color).frame(width: geo.size.width * CGFloat(total > 0 ? item.amount / total : 0), height: 6) }.frame(height: 6).offset(y: 10) }.frame(width: 60)
-                            Text(String(format: "%.0f%%", total > 0 ? (item.amount / total) * 100 : 0)).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary)
-                        }.frame(width: 120, alignment: .trailing)
-                    }.padding(.vertical, 4)
+                VStack(spacing: 2) {
+                    ForEach(cd, id: \.name) { item in
+                        ReportsCategoryTableRow(item: item, total: total, amountString: fmt(item.amount)) {
+                            if let cat = categories.first(where: { $0.name == item.name }) { onCategorySelect?(cat, dateFilter()) }
+                        }
+                    }
                 }
             }
         }.glassCard()
@@ -187,10 +209,69 @@ struct ReportsView: View {
         Dictionary(grouping: filtered) { $0.category?.name ?? "Other" }.map { (name, exps) in let cat = categories.first { $0.name == name }; return CatItem(name: name, icon: cat?.icon ?? "ellipsis.circle.fill", color: cat?.color ?? AppTheme.chartColors[abs(name.hashValue) % AppTheme.chartColors.count], amount: exps.reduce(0) { $0 + $1.amount }, count: exps.count) }.sorted { $0.amount > $1.amount }
     }
     
+    private func dateFilter() -> DateFilter {
+        switch selectedTab {
+        case .monthly: return .customMonth(currentDate)
+        case .yearly: return .customYear(currentDate)
+        case .quarterly: return .allTime
+        }
+    }
+    
     private var periodTitle: String { let c = Calendar.current; let f = DateFormatter(); switch selectedTab { case .monthly: f.dateFormat = "MMMM yyyy"; return f.string(from: currentDate); case .quarterly: let m = c.component(.month, from: currentDate); let y = c.component(.year, from: currentDate); return "Q\((m-1)/3+1) \(y)"; case .yearly: f.dateFormat = "yyyy"; return f.string(from: currentDate) } }
     private var chartTitle: String { switch selectedTab { case .monthly: return "Daily Spending"; case .quarterly: return "Monthly Comparison"; case .yearly: return "Monthly Trend" } }
     private func nav(_ d: Int) { let c = Calendar.current; withAnimation { switch selectedTab { case .monthly: currentDate = c.date(byAdding: .month, value: d, to: currentDate) ?? currentDate; case .quarterly: currentDate = c.date(byAdding: .month, value: 3*d, to: currentDate) ?? currentDate; case .yearly: currentDate = c.date(byAdding: .year, value: d, to: currentDate) ?? currentDate } } }
     private func tabIcon(_ t: ReportTab) -> String { switch t { case .monthly: return "calendar"; case .quarterly: return "calendar.badge.clock"; case .yearly: return "chart.line.uptrend.xyaxis" } }
     private var empty: some View { VStack(spacing: 12) { Image(systemName: "chart.bar.xaxis").font(.system(size: 30)).foregroundColor(AppTheme.textMuted); Text("No data for this period").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary) }.frame(maxWidth: .infinity).frame(height: 200) }
     private func fmt(_ v: Double) -> String { let f = NumberFormatter(); f.numberStyle = .currency; f.currencyCode = "INR"; f.maximumFractionDigits = 0; return f.string(from: NSNumber(value: v)) ?? "₹\(Int(v))" }
+}
+
+struct ReportsCategoryRow: View {
+    let name: String
+    let color: Color
+    let amount: String
+    let action: () -> Void
+    @State private var isHovered = false
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Circle().fill(color).frame(width: 8, height: 8)
+                Text(name).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary).lineLimit(1)
+                Spacer()
+                Text(amount).font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
+            }
+            .contentShape(Rectangle())
+            .padding(.vertical, 4).padding(.horizontal, 6)
+            .background(RoundedRectangle(cornerRadius: 6).fill(isHovered ? AppTheme.surfaceElevated : Color.clear))
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
+    }
+}
+
+struct ReportsCategoryTableRow: View {
+    let item: ReportsView.CatItem
+    let total: Double
+    let amountString: String
+    let action: () -> Void
+    @State private var isHovered = false
+    
+    var body: some View {
+        Button(action: action) {
+            HStack {
+                HStack(spacing: 10) { ZStack { RoundedRectangle(cornerRadius: 8).fill(item.color.opacity(0.15)).frame(width: 32, height: 32); Image(systemName: item.icon).font(.system(size: 14)).foregroundColor(item.color) }; Text(item.name).font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.textPrimary) }.frame(maxWidth: .infinity, alignment: .leading)
+                Text("\(item.count)").font(.system(size: 13)).foregroundColor(AppTheme.textSecondary).frame(width: 100, alignment: .trailing)
+                Text(amountString).font(.system(size: 13, weight: .semibold)).foregroundColor(AppTheme.textPrimary).frame(width: 120, alignment: .trailing)
+                HStack(spacing: 8) {
+                    GeometryReader { geo in ZStack(alignment: .leading) { RoundedRectangle(cornerRadius: 3).fill(AppTheme.surfaceElevated).frame(height: 6); RoundedRectangle(cornerRadius: 3).fill(item.color).frame(width: geo.size.width * CGFloat(total > 0 ? item.amount / total : 0), height: 6) }.frame(height: 6).offset(y: 10) }.frame(width: 60)
+                    Text(String(format: "%.0f%%", total > 0 ? (item.amount / total) * 100 : 0)).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary)
+                }.frame(width: 120, alignment: .trailing)
+            }
+            .contentShape(Rectangle())
+            .padding(.vertical, 4).padding(.horizontal, 8)
+            .background(RoundedRectangle(cornerRadius: 8).fill(isHovered ? AppTheme.surfaceElevated : Color.clear))
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
+    }
 }

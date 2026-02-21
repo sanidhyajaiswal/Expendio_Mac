@@ -393,8 +393,15 @@ struct ContentView: View {
 
 
     
+    @State private var expenseFilterCategory: ExpenseCategory? = nil
+    @State private var expenseFilterDate: DateFilter = .allTime
+    
     private func sidebarButton(_ item: SidebarItem) -> some View {
         Button {
+            if item == .expenses {
+                expenseFilterCategory = nil
+                expenseFilterDate = .allTime
+            }
             withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { selectedItem = item }
             contentRefreshId = UUID()
         } label: {
@@ -420,10 +427,24 @@ struct ContentView: View {
     @ViewBuilder
     private func mainContent(profileId: UUID) -> some View {
         switch selectedItem {
-        case .dashboard: DashboardView(profileId: profileId).id(contentRefreshId)
-        case .expenses: ExpenseListView(profileId: profileId).id(contentRefreshId)
-        case .reports: ReportsView(profileId: profileId).id(contentRefreshId)
-        case .categories: CategoryManagementView(profileId: profileId).id(contentRefreshId)
+        case .dashboard: 
+            DashboardView(profileId: profileId, onCategorySelect: { cat, dateFilter in
+                expenseFilterCategory = cat
+                if let df = dateFilter { expenseFilterDate = df }
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { selectedItem = .expenses }
+                contentRefreshId = UUID()
+            }).id(contentRefreshId)
+        case .expenses: 
+            ExpenseListView(profileId: profileId, initialCategory: expenseFilterCategory, initialDateFilter: expenseFilterDate).id(contentRefreshId)
+        case .reports: 
+            ReportsView(profileId: profileId, onCategorySelect: { cat, dateFilter in
+                expenseFilterCategory = cat
+                if let df = dateFilter { expenseFilterDate = df }
+                withAnimation(.spring(response: 0.3, dampingFraction: 0.8)) { selectedItem = .expenses }
+                contentRefreshId = UUID()
+            }).id(contentRefreshId)
+        case .categories: 
+            CategoryManagementView(profileId: profileId).id(contentRefreshId)
         }
     }
     

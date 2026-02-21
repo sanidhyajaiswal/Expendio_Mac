@@ -1,13 +1,24 @@
 import SwiftUI
 import SwiftData
 
-enum DateFilter: String, CaseIterable, Identifiable {
-    case allTime = "All Time"
-    case thisMonth = "This Month"
-    case lastMonth = "Last Month"
-    case thisYear = "This Year"
+enum DateFilter: Equatable {
+    case allTime
+    case thisMonth
+    case lastMonth
+    case thisYear
+    case customMonth(Date)
+    case customYear(Date)
     
-    var id: String { rawValue }
+    var title: String {
+        switch self {
+        case .allTime: return "All Time"
+        case .thisMonth: return "This Month"
+        case .lastMonth: return "Last Month"
+        case .thisYear: return "This Year"
+        case .customMonth(let d): return d.formatted(.dateTime.month().year())
+        case .customYear(let d): return d.formatted(.dateTime.year())
+        }
+    }
     
     var dateRange: Range<Date>? {
         let cal = Calendar.current
@@ -26,6 +37,14 @@ enum DateFilter: String, CaseIterable, Identifiable {
         case .thisYear:
             guard let start = cal.dateInterval(of: .year, for: now)?.start,
                   let end = cal.dateInterval(of: .year, for: now)?.end else { return nil }
+            return start..<end
+        case .customMonth(let d):
+            guard let start = cal.dateInterval(of: .month, for: d)?.start,
+                  let end = cal.dateInterval(of: .month, for: d)?.end else { return nil }
+            return start..<end
+        case .customYear(let d):
+            guard let start = cal.dateInterval(of: .year, for: d)?.start,
+                  let end = cal.dateInterval(of: .year, for: d)?.end else { return nil }
             return start..<end
         }
     }
@@ -55,11 +74,13 @@ struct ExpenseListView: View {
     @State private var showDeleteSelectedConfirm = false
     @State private var isHeaderHovered = false
 
-    init(profileId: UUID) {
+    init(profileId: UUID, initialCategory: ExpenseCategory? = nil, initialDateFilter: DateFilter = .allTime) {
         self.profileId = profileId
         let pid = profileId
         _expenses = Query(filter: #Predicate<Expense> { $0.profileId == pid }, sort: \Expense.date, order: .reverse)
         _categories = Query(filter: #Predicate<ExpenseCategory> { $0.profileId == pid })
+        _selectedCategory = State(initialValue: initialCategory)
+        _selectedDateFilter = State(initialValue: initialDateFilter)
     }
 
     private var filteredExpenses: [Expense] {
@@ -135,13 +156,21 @@ struct ExpenseListView: View {
 
             HStack(spacing: 12) {
                 Menu {
-                    ForEach(DateFilter.allCases) { filter in
-                        Button(filter.rawValue) { selectedDateFilter = filter }
+                    Button("All Time") { selectedDateFilter = .allTime }
+                    Button("This Month") { selectedDateFilter = .thisMonth }
+                    Button("Last Month") { selectedDateFilter = .lastMonth }
+                    Button("This Year") { selectedDateFilter = .thisYear }
+                    if case .customMonth = selectedDateFilter {
+                        Divider()
+                        Button(selectedDateFilter.title) {}
+                    } else if case .customYear = selectedDateFilter {
+                        Divider()
+                        Button(selectedDateFilter.title) {}
                     }
                 } label: {
                     HStack(spacing: 6) {
                         Image(systemName: "calendar")
-                        Text(selectedDateFilter.rawValue).lineLimit(1)
+                        Text(selectedDateFilter.title).lineLimit(1)
                         Image(systemName: "chevron.down").font(.system(size: 10))
                     }
                     .font(.system(size: 13, weight: .medium)).foregroundColor(AppTheme.textSecondary)

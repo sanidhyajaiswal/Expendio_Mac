@@ -7,9 +7,13 @@ struct DashboardView: View {
     @Query private var allExpenses: [Expense]
     @Query private var categories: [ExpenseCategory]
     @Environment(\.themeAccent) private var themeAccent
+    var onCategorySelect: ((ExpenseCategory?, DateFilter?) -> Void)? = nil
     
-    init(profileId: UUID) {
+    @State private var selectedPieAmount: Double?
+    
+    init(profileId: UUID, onCategorySelect: ((ExpenseCategory?, DateFilter?) -> Void)? = nil) {
         self.profileId = profileId
+        self.onCategorySelect = onCategorySelect
         let pid = profileId
         _allExpenses = Query(filter: #Predicate<Expense> { $0.profileId == pid }, sort: \Expense.date, order: .reverse)
         _categories = Query(filter: #Predicate<ExpenseCategory> { $0.profileId == pid })
@@ -119,14 +123,27 @@ struct DashboardView: View {
                 Chart(totals, id: \.key) { item in
                     SectorMark(angle: .value("Amount", item.value), innerRadius: .ratio(0.6), angularInset: 2)
                         .foregroundStyle(colorFor(item.key)).cornerRadius(4)
-                }.frame(height: 180)
-                VStack(spacing: 8) {
+                }
+                .frame(height: 180)
+                .chartAngleSelection(value: $selectedPieAmount)
+                .onTapGesture {
+                    if let newValue = selectedPieAmount {
+                        var cumulative = 0.0
+                        for item in totals {
+                            cumulative += item.value
+                            if newValue <= cumulative {
+                                if let cat = categories.first(where: { $0.name == item.key }) {
+                                    onCategorySelect?(cat, .thisMonth)
+                                }
+                                break
+                            }
+                        }
+                    }
+                }
+                VStack(spacing: 2) {
                     ForEach(Array(totals.prefix(5).enumerated()), id: \.element.key) { _, item in
-                        HStack(spacing: 8) {
-                            Circle().fill(colorFor(item.key)).frame(width: 8, height: 8)
-                            Text(item.key).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary)
-                            Spacer()
-                            Text(fmt(item.value)).font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
+                        DashboardCategoryRow(name: item.key, color: colorFor(item.key), amount: fmt(item.value)) {
+                            if let cat = categories.first(where: { $0.name == item.key }) { onCategorySelect?(cat, .thisMonth) }
                         }
                     }
                 }
@@ -160,5 +177,29 @@ struct DashboardView: View {
     
     private func colorFor(_ name: String) -> Color {
         categories.first(where: { $0.name == name })?.color ?? AppTheme.chartColors[abs(name.hashValue) % AppTheme.chartColors.count]
+    }
+}
+
+struct DashboardCategoryRow: View {
+    let name: String
+    let color: Color
+    let amount: String
+    let action: () -> Void
+    @State private var isHovered = false
+    
+    var body: some View {
+        Button(action: action) {
+            HStack(spacing: 8) {
+                Circle().fill(color).frame(width: 8, height: 8)
+                Text(name).font(.system(size: 12)).foregroundColor(AppTheme.textSecondary)
+                Spacer()
+                Text(amount).font(.system(size: 12, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
+            }
+            .contentShape(Rectangle())
+            .padding(.vertical, 6).padding(.horizontal, 8)
+            .background(RoundedRectangle(cornerRadius: 6).fill(isHovered ? AppTheme.surfaceElevated : Color.clear))
+        }
+        .buttonStyle(.plain)
+        .onHover { isHovered = $0 }
     }
 }
