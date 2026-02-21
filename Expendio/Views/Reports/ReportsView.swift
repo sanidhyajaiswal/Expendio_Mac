@@ -77,6 +77,8 @@ struct ReportsView: View {
     }
     
     // MARK: - Charts
+    @State private var hoveredLabel: String?
+    
     @ViewBuilder private var mainChart: some View {
         VStack(alignment: .leading, spacing: 16) {
             HStack {
@@ -97,19 +99,93 @@ struct ReportsView: View {
             }
             
             let data = chartData
+            let maxAmount = data.max(by: { $0.value < $1.value })?.value ?? 0
+            
             if data.isEmpty { empty } else {
                 Chart(data, id: \.label) { item in
+                    let isHovered = hoveredLabel == item.label
+                    
                     switch selectedChartType {
                     case .bar: 
-                        BarMark(x: .value("Period", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent).cornerRadius(4)
+                        BarMark(x: .value("Period", item.label), y: .value("Amount", item.value))
+                            .foregroundStyle(themeAccent)
+                            .cornerRadius(4)
+                            .opacity(hoveredLabel == nil || isHovered ? 1.0 : 0.5)
+                        
+                        if isHovered {
+                            PointMark(x: .value("Period", item.label), y: .value("Amount", item.value))
+                                .foregroundStyle(Color.clear)
+                                .annotation(position: .top, spacing: 6) {
+                                    VStack(spacing: 2) {
+                                        Text(item.label).font(.system(size: 10, weight: .medium)).foregroundColor(AppTheme.textSecondary)
+                                        Text(fmt(item.value)).font(.system(size: 12, weight: .bold)).foregroundColor(AppTheme.textPrimary)
+                                    }
+                                    .padding(.horizontal, 8).padding(.vertical, 6)
+                                    .background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.surfaceElevated).shadow(color: .black.opacity(0.2), radius: 4))
+                                }
+                        }
                     case .line:
-                        LineMark(x: .value("Period", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent).lineStyle(StrokeStyle(lineWidth: 3)).interpolationMethod(.catmullRom).symbol { Circle().fill(themeAccent).frame(width: 8, height: 8) }
-                        AreaMark(x: .value("Period", item.label), y: .value("Amount", item.value)).foregroundStyle(themeAccent.opacity(0.12)).interpolationMethod(.catmullRom)
+                        LineMark(x: .value("Period", item.label), y: .value("Amount", item.value))
+                            .foregroundStyle(themeAccent)
+                            .lineStyle(StrokeStyle(lineWidth: 3))
+                            .interpolationMethod(.catmullRom)
+                            .symbol { Circle().fill(themeAccent).frame(width: 8, height: 8) }
+                        
+                        AreaMark(x: .value("Period", item.label), y: .value("Amount", item.value))
+                            .foregroundStyle(themeAccent.opacity(0.12))
+                            .interpolationMethod(.catmullRom)
+                            
+                        if isHovered {
+                            RuleMark(x: .value("Period", item.label))
+                                .foregroundStyle(AppTheme.textMuted.opacity(0.5))
+                                .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
+                            
+                            PointMark(x: .value("Period", item.label), y: .value("Amount", item.value))
+                                .foregroundStyle(themeAccent)
+                                .symbolSize(150)
+                                .annotation(position: .top, spacing: 10) {
+                                    VStack(spacing: 2) {
+                                        Text(item.label).font(.system(size: 10, weight: .medium)).foregroundColor(AppTheme.textSecondary)
+                                        Text(fmt(item.value)).font(.system(size: 12, weight: .bold)).foregroundColor(AppTheme.textPrimary)
+                                    }
+                                    .padding(.horizontal, 8).padding(.vertical, 6)
+                                    .background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.surfaceElevated).shadow(color: .black.opacity(0.2), radius: 4))
+                                }
+                        }
                     }
                 }
                 .chartXAxis { AxisMarks { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.3)); AxisValueLabel().foregroundStyle(AppTheme.textSecondary) } }
                 .chartYAxis { AxisMarks { _ in AxisGridLine().foregroundStyle(AppTheme.border.opacity(0.2)); AxisValueLabel().foregroundStyle(AppTheme.textSecondary) } }
+                .chartYScale(domain: 0...(maxAmount > 0 ? maxAmount * 1.25 : 100.0))
                 .frame(minHeight: 180, maxHeight: .infinity)
+                .chartOverlay { proxy in
+                    GeometryReader { geometry in
+                        Rectangle().fill(.clear).contentShape(Rectangle())
+                            .onHover { hover in
+                                if !hover { hoveredLabel = nil }
+                            }
+                            .onContinuousHover { phase in
+                                switch phase {
+                                case .active(let location):
+                                    if let plotAreaFrame = proxy.plotFrame {
+                                        let origin = geometry[plotAreaFrame].origin
+                                        let width = proxy.plotSize.width
+                                        let xPosition = location.x - origin.x
+                                        
+                                        guard xPosition >= 0, xPosition <= width else {
+                                            hoveredLabel = nil; return
+                                        }
+                                        
+                                        if let labelVal = proxy.value(atX: xPosition, as: String.self) {
+                                            hoveredLabel = labelVal
+                                        }
+                                    }
+                                case .ended:
+                                    hoveredLabel = nil
+                                }
+                            }
+                    }
+                }
             }
         }.glassCard().frame(maxWidth: .infinity, maxHeight: .infinity)
     }

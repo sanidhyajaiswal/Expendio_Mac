@@ -419,6 +419,7 @@ struct ContentView: View {
                 Text(item.rawValue).font(.system(size: 14, weight: selectedItem == item ? .semibold : .medium))
                 Spacer()
             }
+            .contentShape(Rectangle())
             .foregroundColor(selectedItem == item ? .white : AppTheme.textSecondary)
             .padding(.horizontal, 14).padding(.vertical, 10)
             .background(

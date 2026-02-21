@@ -104,18 +104,75 @@ struct DashboardView: View {
         .fixedSize(horizontal: false, vertical: true)
     }
     
+    @State private var hoveredDate: Date?
+
     private var spendingTrendChart: some View {
         VStack(alignment: .leading, spacing: 16) {
             Text("Spending Trend (30 days)").font(.system(size: 16, weight: .semibold)).foregroundColor(AppTheme.textPrimary)
+            
+            let maxAmount = last30DaysData.max(by: { $0.1 < $1.1 })?.1 ?? 0
+            
             if last30DaysData.contains(where: { $0.1 > 0 }) {
                 Chart(last30DaysData, id: \.0) { item in
                     AreaMark(x: .value("Date", item.0), y: .value("Amount", item.1))
                         .foregroundStyle(themeAccent.opacity(0.15)).interpolationMethod(.catmullRom)
                     LineMark(x: .value("Date", item.0), y: .value("Amount", item.1))
                         .foregroundStyle(themeAccent).lineStyle(StrokeStyle(lineWidth: 2)).interpolationMethod(.catmullRom)
+                    
+                    if let hoveredDate = hoveredDate, Calendar.current.isDate(hoveredDate, inSameDayAs: item.0) {
+                        RuleMark(x: .value("Date", item.0))
+                            .foregroundStyle(AppTheme.textMuted.opacity(0.5))
+                            .lineStyle(StrokeStyle(lineWidth: 1, dash: [5]))
+                        
+                        PointMark(x: .value("Date", item.0), y: .value("Amount", item.1))
+                            .foregroundStyle(themeAccent)
+                            .symbolSize(100)
+                            .annotation(position: .top, spacing: 10) {
+                                VStack(spacing: 2) {
+                                    Text(item.0, format: .dateTime.month(.abbreviated).day())
+                                        .font(.system(size: 10, weight: .medium))
+                                        .foregroundColor(AppTheme.textSecondary)
+                                    Text(fmt(item.1))
+                                        .font(.system(size: 12, weight: .bold))
+                                        .foregroundColor(AppTheme.textPrimary)
+                                }
+                                .padding(.horizontal, 8)
+                                .padding(.vertical, 6)
+                                .background(RoundedRectangle(cornerRadius: 6).fill(AppTheme.surfaceElevated).shadow(color: .black.opacity(0.2), radius: 4))
+                            }
+                    }
                 }
                 .chartXAxis { AxisMarks(values: .stride(by: .day, count: 7)) { _ in AxisValueLabel(format: .dateTime.day().month(.abbreviated)).foregroundStyle(AppTheme.textSecondary) } }
                 .chartYAxis { AxisMarks { _ in AxisValueLabel().foregroundStyle(AppTheme.textSecondary) } }
+                .chartYScale(domain: 0...(maxAmount > 0 ? maxAmount * 1.25 : 100.0))
+                .chartOverlay { proxy in
+                    GeometryReader { geometry in
+                        Rectangle().fill(.clear).contentShape(Rectangle())
+                            .onHover { hover in
+                                if !hover { hoveredDate = nil }
+                            }
+                            .onContinuousHover { phase in
+                                switch phase {
+                                case .active(let location):
+                                    if let plotAreaFrame = proxy.plotFrame {
+                                        let origin = geometry[plotAreaFrame].origin
+                                        let width = proxy.plotSize.width
+                                        let xPosition = location.x - origin.x
+                                        guard xPosition >= 0, xPosition <= width else {
+                                            hoveredDate = nil; return
+                                        }
+                                        if let date = proxy.value(atX: xPosition, as: Date.self) {
+                                            if let nearest = last30DaysData.min(by: { abs($0.0.timeIntervalSince(date)) < abs($1.0.timeIntervalSince(date)) }) {
+                                                hoveredDate = nearest.0
+                                            }
+                                        }
+                                    }
+                                case .ended:
+                                    hoveredDate = nil
+                                }
+                            }
+                    }
+                }
             } else { emptyChart }
         }.glassCard().frame(maxWidth: .infinity, maxHeight: .infinity)
     }
